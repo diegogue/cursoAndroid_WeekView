@@ -1,6 +1,7 @@
 package com.alamkanak.weekview.sample
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.alamkanak.weekview.WeekView
@@ -20,6 +21,8 @@ class WholeViewSnappingActivity : BasicActivity() {
         weekView.isScrollNumberOfVisibleDays = true
         setDayViewType(TYPE_WEEK_VIEW)
         val cal = Calendar.getInstance()
+        val currentHour = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60.0
+        weekView.goToHour(Math.max(currentHour - 1, 0.0))
         cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
         weekView.goToDate(cal)
 //        weekView.enableDrawHeaderBackgroundOnlyOnWeekDays = true
@@ -44,11 +47,18 @@ class WholeViewSnappingActivity : BasicActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_today) {
-            val cal = Calendar.getInstance()
-            cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
+            val cal = Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, firstDayOfWeek) }
             weekView.goToDate(cal)
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val result = super.onCreateOptionsMenu(menu)
+        menu.findItem(R.id.action_day_view).isChecked = false
+        menu.findItem(R.id.action_three_day_view).isChecked = false
+        menu.findItem(R.id.action_week_view).isChecked = true
+        return result
     }
 }

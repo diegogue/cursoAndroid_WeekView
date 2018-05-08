@@ -176,10 +176,11 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
      * @param shortDate True if the date values should be short.
      */
     private fun setupDateTimeInterpreter(shortDate: Boolean) {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
         val dateFormat = DateFormat.getTimeFormat(this@BaseActivity)
                 ?: SimpleDateFormat("HH:mm", Locale.getDefault())
         val format = WeekViewUtil.getNumericDayAndMonthFormat(this)

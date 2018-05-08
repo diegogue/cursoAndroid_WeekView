@@ -50,20 +50,20 @@ class WeekViewEvent {
     constructor(id: String, name: String, startYear: Int, startMonth: Int, startDay: Int, startHour: Int, startMinute: Int, endYear: Int, endMonth: Int, endDay: Int, endHour: Int, endMinute: Int) {
         this.identifier = id
 
-        this.startTime = Calendar.getInstance()
-        this.startTime!!.set(Calendar.YEAR, startYear)
-        this.startTime!!.set(Calendar.MONTH, startMonth - 1)
-        this.startTime!!.set(Calendar.DAY_OF_MONTH, startDay)
-        this.startTime!!.set(Calendar.HOUR_OF_DAY, startHour)
-        this.startTime!!.set(Calendar.MINUTE, startMinute)
-
-        this.endTime = Calendar.getInstance()
-        this.endTime!!.set(Calendar.YEAR, endYear)
-        this.endTime!!.set(Calendar.MONTH, endMonth - 1)
-        this.endTime!!.set(Calendar.DAY_OF_MONTH, endDay)
-        this.endTime!!.set(Calendar.HOUR_OF_DAY, endHour)
-        this.endTime!!.set(Calendar.MINUTE, endMinute)
-
+        startTime = Calendar.getInstance().apply {
+            set(Calendar.YEAR, startYear)
+            set(Calendar.MONTH, startMonth - 1)
+            set(Calendar.DAY_OF_MONTH, startDay)
+            set(Calendar.HOUR_OF_DAY, startHour)
+            set(Calendar.MINUTE, startMinute)
+        }
+        endTime = Calendar.getInstance().apply {
+            set(Calendar.YEAR, endYear)
+            set(Calendar.MONTH, endMonth - 1)
+            set(Calendar.DAY_OF_MONTH, endDay)
+            set(Calendar.HOUR_OF_DAY, endHour)
+            set(Calendar.MINUTE, endMinute)
+        }
         this.name = name
     }
 

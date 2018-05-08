@@ -1,8 +1,8 @@
 package com.alamkanak.weekview.sample
 
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
+import android.support.v4.content.res.ResourcesCompat
 import com.alamkanak.weekview.TextColorPicker
 import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
@@ -18,8 +18,7 @@ open class BasicActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val customTypeface = Typeface.createFromAsset(this.assets, "fonts/Raleway/Raleway-Medium.ttf")
-        weekView.typeface = customTypeface
+        weekView.typeface = ResourcesCompat.getFont(this, R.font.lato)
         weekView.textColorPicker = object : TextColorPicker {
             override fun getTextColor(event: WeekViewEvent): Int {
                 val color = event.color
@@ -141,7 +140,6 @@ open class BasicActivity : BaseActivity() {
         endTime.add(Calendar.HOUR_OF_DAY, 23)
         event = WeekViewEvent(7, getEventTitle(startTime), null, startTime, endTime, true)
         event.color = resources.getColor(R.color.event_color_04)
-        events.add(event)
         events.add(event)
 
         startTime = Calendar.getInstance()
