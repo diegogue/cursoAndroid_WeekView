@@ -158,7 +158,7 @@ class WeekViewEvent {
         return identifier!!.hashCode()
     }
 
-    fun splitWeekViewEvents(): List<WeekViewEvent> {
+    fun splitWeekViewEvents(): MutableList<WeekViewEvent> {
         //This function splits the WeekViewEvent in WeekViewEvents by day
         val events = ArrayList<WeekViewEvent>()
         // The first millisecond of the next day is still the same day. (no need to split events for this).

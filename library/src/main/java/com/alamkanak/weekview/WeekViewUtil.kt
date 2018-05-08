@@ -1,5 +1,9 @@
 package com.alamkanak.weekview
 
+import android.content.Context
+import android.os.Build
+import android.text.format.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -50,7 +54,6 @@ object WeekViewUtil {
      */
     @JvmStatic
     fun isSameDayAndHour(dateOne: Calendar, dateTwo: Calendar?): Boolean {
-
         return if (dateTwo != null) {
             isSameDay(dateOne, dateTwo) && dateOne.get(Calendar.HOUR_OF_DAY) == dateTwo.get(Calendar.HOUR_OF_DAY)
         } else false
@@ -88,5 +91,41 @@ object WeekViewUtil {
     @JvmStatic
     fun getPassedMinutesInDay(hour: Int, minute: Int): Int {
         return hour * 60 + minute
+    }
+
+    /**returns a numeric date format of day&month, based on the current locale.
+     * This is important, as the format is different in many countries. Can be "d/M", "M/d", "d-M", "M-d" ,...*/
+    @JvmStatic
+    fun getNumericDayAndMonthFormat(context: Context): SimpleDateFormat {
+        val defaultDateFormatPattern = "d/M"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            val locale = Locale.getDefault()
+            var bestDateTimePattern = DateFormat.getBestDateTimePattern(locale, defaultDateFormatPattern)
+            //workaround fix for this issue: https://issuetracker.google.com/issues/79311044
+            //TODO if there is a better API that doesn't require this workaround, use it. Be sure to check vs all locales, as done here: https://issuetracker.google.com/issues/37044127
+            bestDateTimePattern = bestDateTimePattern.replace("d+".toRegex(), "d").replace("M+".toRegex(), "M")
+            return SimpleDateFormat(bestDateTimePattern, locale)
+        }
+        try {
+            val dateFormatOrder = DateFormat.getDateFormatOrder(context)
+            if (dateFormatOrder.isEmpty())
+                return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
+            val sb = StringBuilder()
+            for (i in dateFormatOrder.indices) {
+                val c = dateFormatOrder[i]
+                if (Character.toLowerCase(c) == 'y')
+                    continue
+                if (sb.isNotEmpty())
+                    sb.append('/')
+                when (Character.toLowerCase(c)) {
+                    'm' -> sb.append("M")
+                    'd' -> sb.append("d")
+                }
+            }
+            val dateFormatString = sb.toString()
+            return SimpleDateFormat(dateFormatString, Locale.getDefault())
+        } catch (e: Exception) {
+            return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
+        }
     }
 }

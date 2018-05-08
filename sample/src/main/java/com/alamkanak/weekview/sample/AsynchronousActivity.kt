@@ -15,12 +15,12 @@ import java.util.*
  * Created by Raquib-ul-Alam Kanak on 1/3/2014.
  * Website: http://alamkanak.github.io
  */
-class AsynchronousActivity : BaseActivity(), Callback<List<Event>> {
+class AsynchronousActivity : BaseActivity(), Callback<MutableList<Event>> {
 
     private val events = ArrayList<WeekViewEvent>()
     internal var calledNetwork = false
 
-    override fun onMonthChange(newYear: Int, newMonth: Int): List<WeekViewEvent>? {
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
 
         // Download events from network if it hasn't been done already. To understand how events are
         // downloaded using retrofit, visit http://square.github.io/retrofit
@@ -55,12 +55,12 @@ class AsynchronousActivity : BaseActivity(), Callback<List<Event>> {
         return event.startTime!!.get(Calendar.YEAR) == year && event.startTime!!.get(Calendar.MONTH) == month - 1 || event.endTime!!.get(Calendar.YEAR) == year && event.endTime!!.get(Calendar.MONTH) == month - 1
     }
 
-    override fun success(events: List<Event>, response: Response) {
+    override fun success(events: MutableList<Event>, response: Response) {
         this.events.clear()
         for (event in events) {
             this.events.add(event.toWeekViewEvent())
         }
-        weekView.notifyDatasetChanged()
+        weekView.notifyDataSetChanged()
     }
 
     override fun failure(error: RetrofitError) {

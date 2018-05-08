@@ -2,9 +2,7 @@ package com.alamkanak.weekview.sample
 
 import android.content.ClipData
 import android.graphics.RectF
-import android.os.Build
 import android.os.Bundle
-import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.text.format.DateFormat
 import android.text.format.DateUtils
@@ -14,10 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import com.alamkanak.weekview.DateTimeInterpreter
-import com.alamkanak.weekview.MonthLoader
-import com.alamkanak.weekview.WeekView
-import com.alamkanak.weekview.WeekViewEvent
+import com.alamkanak.weekview.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,7 +39,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         weekView = findViewById<View>(R.id.weekView) as WeekView
 
         // Show a toast message about the touched event.
-        weekView.setOnEventClickListener(this)
+        weekView.eventClickListener = this
 
         // The week view has infinite scrolling horizontally. We have to provide the events of a
         // month every time the month changes on the week view.
@@ -63,7 +58,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         weekView.addEventClickListener = this
 
         // Set Drag and Drop Listener
-        weekView.setDropListener(this)
+        weekView.weekViewDropListener = this
 
         // Set minDate
         /*Calendar minDate = Calendar.getInstance();
@@ -192,7 +187,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         calendar.set(Calendar.MILLISECOND, 0)
         val dateFormat = DateFormat.getTimeFormat(this@BaseActivity)
                 ?: SimpleDateFormat("HH:mm", Locale.getDefault())
-        val format = SimpleDateFormat(" M/d", Locale.getDefault())
+        val format = WeekViewUtil.getNumericDayAndMonthFormat(this)
         weekView.dateTimeInterpreter = object : DateTimeInterpreter {
             override fun interpretTime(hour: Int, minutes: Int): String {
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -201,14 +196,13 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
             }
 
             override fun interpretDate(date: Calendar): String {
-                var weekday = DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORT)
-                if (shortDate) {
-                    val dayOfWeekString = DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORTEST)
-                    weekday = dayOfWeekString
-                }
-                return weekday + format.format(date.time)
+                val weekday =
+                        if (shortDate)
+                            DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORTEST)
+                        else
+                            DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORT)
+                return "$weekday ${format.format(date.time)}"
             }
-
         }
     }
 
@@ -232,7 +226,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         Toast.makeText(this, "Empty view" + " clicked: " + getEventTitle(date), Toast.LENGTH_SHORT).show()
     }
 
-    override fun onMonthChange(newYear: Int, newMonth: Int): List<WeekViewEvent>? {
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
         return null
     }
 

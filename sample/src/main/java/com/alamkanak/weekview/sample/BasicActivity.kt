@@ -18,7 +18,7 @@ open class BasicActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         val customTypeface = Typeface.createFromAsset(this.assets, "fonts/Raleway/Raleway-Medium.ttf")
-        weekView.setTypeface(customTypeface)
+        weekView.typeface = customTypeface
         weekView.textColorPicker = object : TextColorPicker {
             override fun getTextColor(event: WeekViewEvent): Int {
                 val color = event.color
@@ -28,7 +28,7 @@ open class BasicActivity : BaseActivity() {
         }
     }
 
-    override fun onMonthChange(newYear: Int, newMonth: Int): List<WeekViewEvent>? {
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
         // Populate the week view with some events.
         val events = ArrayList<WeekViewEvent>()
 

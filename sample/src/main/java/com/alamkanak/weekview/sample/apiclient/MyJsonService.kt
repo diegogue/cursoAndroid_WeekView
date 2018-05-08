@@ -10,6 +10,6 @@ import retrofit.http.GET
 interface MyJsonService {
 
     @GET("/1kpjf")
-    fun listEvents(eventsCallback: Callback<List<Event>>)
+    fun listEvents(eventsCallback: Callback<MutableList<Event>>)
 
 }

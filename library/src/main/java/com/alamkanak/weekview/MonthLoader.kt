@@ -8,7 +8,7 @@ class MonthLoader(var onMonthChangeListener: MonthChangeListener?) : WeekViewLoa
         return (instance.get(Calendar.YEAR) * 12).toDouble() + instance.get(Calendar.MONTH).toDouble() + (instance.get(Calendar.DAY_OF_MONTH) - 1) / 30.0
     }
 
-    override fun onLoad(periodIndex: Int): List<WeekViewEvent>? {
+    override fun onLoad(periodIndex: Int): MutableList<WeekViewEvent>? {
         return onMonthChangeListener!!.onMonthChange(periodIndex / 12, periodIndex % 12 + 1)
     }
 
@@ -25,6 +25,6 @@ class MonthLoader(var onMonthChangeListener: MonthChangeListener?) : WeekViewLoa
          *month of the events required by the view **1 based (not like JAVA API) : January = 1 and December = 12**.
          * @return a list of the events happening **during the specified month**.
          */
-        fun onMonthChange(newYear: Int, newMonth: Int): List<WeekViewEvent>?
+        fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>?
     }
 }
