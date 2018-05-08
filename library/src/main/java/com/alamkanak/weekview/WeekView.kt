@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.support.v4.view.GestureDetectorCompat
 import android.support.v4.view.ViewCompat
 import android.support.v4.view.animation.FastOutLinearInInterpolator
+import android.support.v7.content.res.AppCompatResources
 import android.text.*
 import android.text.format.DateFormat
 import android.text.format.DateUtils
@@ -97,24 +98,24 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val mEmptyEventPaint = Paint()
     private val mHeaderBackgroundPaint: Paint = Paint()
     private var mWidthPerDay: Float = 0f
-    private val mDayBackgroundPaint: Paint=Paint()
-    private val mHourSeparatorPaint= Paint()
+    private val mDayBackgroundPaint: Paint = Paint()
+    private val mHourSeparatorPaint = Paint()
     private var mHeaderMarginBottom: Float = 0f
     private val mTodayBackgroundPaint: Paint = Paint()
     private val mFutureBackgroundPaint: Paint = Paint()
-    private val mPastBackgroundPaint= Paint()
-    private val mFutureWeekendBackgroundPaint= Paint()
-    private val mPastWeekendBackgroundPaint= Paint()
-    private val mNowLinePaint= Paint()
-    private val mTodayHeaderTextPaint= Paint(Paint.ANTI_ALIAS_FLAG)
-    private val mEventBackgroundPaint= Paint()
-    private val mNewEventBackgroundPaint= Paint()
+    private val mPastBackgroundPaint = Paint()
+    private val mFutureWeekendBackgroundPaint = Paint()
+    private val mPastWeekendBackgroundPaint = Paint()
+    private val mNowLinePaint = Paint()
+    private val mTodayHeaderTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mEventBackgroundPaint = Paint()
+    private val mNewEventBackgroundPaint = Paint()
     private var mHeaderColumnWidth: Float = 0f
     private var mEventRects: MutableList<EventRect>? = null
     private var mEvents: MutableList<WeekViewEvent>? = null
-    private val mEventTextPaint=TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.LINEAR_TEXT_FLAG)
+    private val mEventTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.LINEAR_TEXT_FLAG)
     private val mNewEventTextPaint: TextPaint? = null
-    private val mHeaderColumnBackgroundPaint: Paint= Paint()
+    private val mHeaderColumnBackgroundPaint: Paint = Paint()
     private var mFetchedPeriod = -1 // the middle period the calendar has fetched.
     private var mRefreshEvents = false
     private var mCurrentFlingDirection = Direction.NONE
@@ -1284,7 +1285,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         for (i in 0 until numberOfPeriods) {
             // Measure time string and get max width.
             val time = dateTimeInterpreter.interpretTime(i, i % 2 * 30)
-                    ?: throw IllegalStateException("A DateTimeInterpreter must not return null time")
             mTimeTextWidth = Math.max(mTimeTextWidth, mTimeTextPaint.measureText(time))
         }
     }
@@ -1351,7 +1351,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             // Get the time to be displayed, as a String.
             val time = dateTimeInterpreter.interpretTime(hour, minutes)
-                    ?: throw IllegalStateException("A DateTimeInterpreter must not return null time")
             // Draw the text if its y position is not outside of the visible area. The pivot point of the text is the point at the bottom-right corner.
             if (top < height)
                 canvas.drawText(time, mTimeTextWidth + mHeaderColumnPadding, top + mTimeTextHeight, mTimeTextPaint)
@@ -1575,7 +1574,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             // Draw the day labels.
             val dayLabel = dateTimeInterpreter.interpretDate(day)
-                    ?: throw IllegalStateException("A DateTimeInterpreter must not return null date")
             canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, if (isToday) mTodayHeaderTextPaint else mHeaderTextPaint)
             drawAllDayEvents(day, startPixel, canvas)
             startPixel += mWidthPerDay + mColumnGap
@@ -1802,7 +1800,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun drawEmptyImage(event: WeekViewEvent, rect: RectF, canvas: Canvas, originalTop: Float, originalLeft: Float) {
         val size = Math.max(1, Math.floor(Math.min(0.8 * rect.height(), 0.8 * rect.width())).toInt())
         if (newEventIconDrawable == null)
-            newEventIconDrawable = resources.getDrawable(android.R.drawable.ic_input_add)
+            newEventIconDrawable = AppCompatResources.getDrawable(context, android.R.drawable.ic_input_add)
         var icon = (newEventIconDrawable as BitmapDrawable).bitmap
         icon = Bitmap.createScaledBitmap(icon, size, size, false)
         canvas.drawBitmap(icon, originalLeft + (rect.width() - icon.width) / 2, originalTop + (rect.height() - icon.height) / 2, mEmptyEventPaint)
