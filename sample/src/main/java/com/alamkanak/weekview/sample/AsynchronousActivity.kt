@@ -4,6 +4,7 @@ import android.widget.Toast
 import com.alamkanak.weekview.WeekViewEvent
 import com.alamkanak.weekview.sample.apiclient.Event
 import com.alamkanak.weekview.sample.apiclient.MyJsonService
+import kotlinx.android.synthetic.main.activity_base.*
 import retrofit.Callback
 import retrofit.RestAdapter
 import retrofit.RetrofitError

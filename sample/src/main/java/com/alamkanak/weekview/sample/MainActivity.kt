@@ -3,7 +3,7 @@ package com.alamkanak.weekview.sample
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * The launcher activity of the sample app. It contains the links to visit all the example screens.
@@ -16,16 +16,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<View>(R.id.buttonBasic).setOnClickListener {
+        buttonBasic.setOnClickListener {
             val intent = Intent(this@MainActivity, BasicActivity::class.java)
             startActivity(intent)
         }
 
-        findViewById<View>(R.id.buttonAsynchronous).setOnClickListener {
+        buttonAsynchronous.setOnClickListener {
             val intent = Intent(this@MainActivity, AsynchronousActivity::class.java)
             startActivity(intent)
         }
-        findViewById<View>(R.id.buttonWholeViewSnap).setOnClickListener {
+        buttonWholeViewSnap.setOnClickListener {
             startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
         }
     }

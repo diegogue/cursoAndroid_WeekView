@@ -1145,7 +1145,7 @@ class WeekView @JvmOverloads constructor(private val mContext: Context, attrs: A
                 this.isDropListenerEnabled = true
             minOverlappingMinutes = a.getInt(R.styleable.WeekView_minOverlappingMinutes, 0)
             mIsScrollNumberOfVisibleDays = a.getBoolean(R.styleable.WeekView_isScrollNumberOfVisibleDays, false)
-            enableDrawHeaderBackgroundOnlyOnWeekDays=a.getBoolean(R.styleable.WeekView_enableDrawHeaderBackgroundOnlyOnWeekDays, false)
+            enableDrawHeaderBackgroundOnlyOnWeekDays = a.getBoolean(R.styleable.WeekView_enableDrawHeaderBackgroundOnlyOnWeekDays, false)
         } finally {
             a.recycle()
         }
@@ -1885,7 +1885,7 @@ class WeekView @JvmOverloads constructor(private val mContext: Context, attrs: A
 
                 // Clear events.
                 this.clearEvents()
-                cacheAndSortEvents(newEvents!!)
+                cacheAndSortEvents(newEvents)
                 calculateHeaderHeight()
 
                 mFetchedPeriod = periodToFetch
@@ -1930,7 +1930,7 @@ class WeekView @JvmOverloads constructor(private val mContext: Context, attrs: A
      * @param event The event to cache.
      */
     private fun cacheEvent(event: WeekViewEvent) {
-        if (event.startTime!!.compareTo(event.endTime) >= 0)
+        if (event.startTime!! >= event.endTime)
             return
         val splitedEvents = event.splitWeekViewEvents()
         for (splitedEvent in splitedEvents) {
@@ -1945,10 +1945,10 @@ class WeekView @JvmOverloads constructor(private val mContext: Context, attrs: A
      *
      * @param events The events to be cached and sorted.
      */
-    private fun cacheAndSortEvents(events: MutableList<WeekViewEvent>) {
-        for (event in events) {
-            cacheEvent(event)
-        }
+    private fun cacheAndSortEvents(events: MutableList<WeekViewEvent>?) {
+        if (events != null)
+            for (event in events)
+                cacheEvent(event)
         sortEventRects(mEventRects)
     }
 
@@ -1958,7 +1958,7 @@ class WeekView @JvmOverloads constructor(private val mContext: Context, attrs: A
      * @param eventRects The events to be sorted.
      */
     private fun sortEventRects(eventRects: MutableList<EventRect>?) {
-        eventRects!!.sortWith(Comparator { left, right ->
+        eventRects?.sortWith(Comparator { left, right ->
             val start1 = left.event.startTime!!.timeInMillis
             val start2 = right.event.startTime!!.timeInMillis
             var comparator = if (start1 > start2) 1 else if (start1 < start2) -1 else 0

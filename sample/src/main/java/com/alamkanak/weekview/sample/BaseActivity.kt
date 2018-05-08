@@ -10,9 +10,9 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import com.alamkanak.weekview.*
+import kotlinx.android.synthetic.main.activity_base.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,19 +24,14 @@ import java.util.*
  */
 abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener, WeekView.EmptyViewClickListener, WeekView.AddEventClickListener, WeekView.DropListener {
     private var mWeekViewType = TYPE_THREE_DAY_VIEW
-    lateinit var weekView: WeekView
-        protected set
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
 
-        val draggableView = findViewById<View>(R.id.draggable_view) as TextView
-        draggableView.setOnLongClickListener(DragTapListener())
-
+        draggable_view.setOnLongClickListener(DragTapListener())
 
         // Get a reference for the week view in the layout.
-        weekView = findViewById<View>(R.id.weekView) as WeekView
 
         // Show a toast message about the touched event.
         weekView.eventClickListener = this

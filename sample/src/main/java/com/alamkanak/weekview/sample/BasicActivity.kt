@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import com.alamkanak.weekview.TextColorPicker
 import com.alamkanak.weekview.WeekViewEvent
+import kotlinx.android.synthetic.main.activity_base.*
 import java.util.*
 
 /**
