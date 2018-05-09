@@ -1436,10 +1436,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         val startFromPixel = xStartPixel
         var startPixel = startFromPixel
 
-        // Prepare to iterate for each day.
-        var day = today.clone() as Calendar
-        day.add(Calendar.HOUR_OF_DAY, 6)
-
         // Prepare to iterate for each hour to draw the hour lines.
         var lineCount = ((height.toFloat() - mHeaderHeight - (mHeaderRowPadding * 2).toFloat() -
                 mHeaderMarginBottom) / mHourHeight).toInt() + 1
@@ -1469,7 +1465,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         if (autoLimitTime) {
             val days = ArrayList<Calendar>()
             for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays) {
-                day = mHomeDate!!.clone() as Calendar
+                val day = mHomeDate!!.clone() as Calendar
                 day.add(Calendar.DATE, dayNumber - 1)
                 days.add(day)
             }
@@ -1478,7 +1474,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays + 1) {
             // Check if the day is today.
-            day = mHomeDate!!.clone() as Calendar
+            val day = mHomeDate!!.clone() as Calendar
             lastVisibleDay = day.clone() as Calendar
             day.add(Calendar.DATE, dayNumber - 1)
             lastVisibleDay!!.add(Calendar.DATE, dayNumber - 2)
@@ -1581,24 +1577,26 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             canvas.drawRect(0f, 0f, width.toFloat(), mHeaderHeight + mHeaderRowPadding * 2, mHeaderBackgroundPaint)
 
         // Draw the header row texts.
-        startPixel = startFromPixel
-        for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays + 1) {
-            // Check if the day is today.
-            day = mHomeDate!!.clone() as Calendar
-            day.add(Calendar.DATE, dayNumber - 1)
-            val isToday = isSameDay(day, today)
-
-            // Don't draw days which are outside requested range
-            if (!dateIsValid(day))
-                continue
-
-            // Draw the day labels.
-            val dayLabel = dateTimeInterpreter.interpretDate(day)
-            canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, if (isToday) mTodayHeaderTextPaint else mHeaderTextPaint)
-            drawAllDayEvents(day, startPixel, canvas)
-            startPixel += mWidthPerDay + mColumnGap
+        run {
+            val day = mHomeDate!!.clone() as Calendar
+            startPixel = startFromPixel
+            day.add(Calendar.DATE, leftDaysWithGaps)
+            for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays + 1) {
+                // Check if the day is today.
+                val isToday = isSameDay(day, today)
+                // Don't draw days which are outside requested range
+                if (!dateIsValid(day)) {
+                    day.add(Calendar.DAY_OF_YEAR, 1)
+                    continue
+                }
+                // Draw the day labels.
+                val dayLabel = dateTimeInterpreter.interpretDate(day)
+                canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, mHeaderTextHeight + mHeaderRowPadding, if (isToday) mTodayHeaderTextPaint else mHeaderTextPaint)
+                drawAllDayEvents(day, startPixel, canvas)
+                startPixel += mWidthPerDay + mColumnGap
+                day.add(Calendar.DAY_OF_YEAR, 1)
+            }
         }
-
     }
 
     /**
