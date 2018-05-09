@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:tools="http://schemas.android.com/tools" package="com.alamkanak.weekview.sample" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="com.alamkanak.weekview.sample" xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -13,12 +14,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <activity
             android:name=".BasicActivity" android:label="@string/title_activity_basic"/>
+
         <activity
             android:name=".AsynchronousActivity" android:label="@string/title_activity_asynchronous"/>
-        <activity android:screenOrientation="userLandscape" android:theme="@style/AppTheme.FullScreen"
-            android:name=".WholeViewSnappingActivity" android:label="@string/title_activity_whole_view_snap"/>
+
+        <activity
+            android:name=".WholeViewSnappingActivity" android:label="@string/title_activity_whole_view_snap"
+            android:screenOrientation="userLandscape" android:theme="@style/AppTheme.FullScreen"/>
     </application>
 
 </manifest>

@@ -146,7 +146,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mStartOriginForScroll = 0f
 
     // Attributes and their default values.
-    private var mHourHeight =TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50f, resources.displayMetrics).toInt()
+    private var mHourHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50f, resources.displayMetrics).toInt()
     private var mNewHourHeight = -1
     var minHourHeight = 0
     //no minimum specified (will be dynamic, based on screen)
@@ -159,7 +159,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mHeaderColumnPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
     private var mHeaderColumnTextColor = Color.BLACK
     private var mNumberOfVisibleDays = 3
-    private var mHeaderRowPadding =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
+    private var mHeaderRowPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
     private var mHeaderRowBackgroundColor = Color.WHITE
     private var mDayBackgroundColor = Color.rgb(245, 245, 245)
     private var mPastBackgroundColor = Color.rgb(227, 227, 227)
@@ -167,14 +167,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mPastWeekendBackgroundColor = 0
     private var mFutureWeekendBackgroundColor = 0
     private var mNowLineColor = Color.rgb(102, 102, 102)
-    private var mNowLineThickness =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
+    private var mNowLineThickness = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
     private var mHourSeparatorColor = Color.rgb(230, 230, 230)
     private var mTodayBackgroundColor = Color.rgb(239, 247, 254)
     private var mHourSeparatorHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
     private var mTodayHeaderTextColor = Color.rgb(39, 137, 228)
     private var mEventTextSize = 12
     private var mEventTextColor = Color.BLACK
-    private var mEventPadding =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
+    private var mEventPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
     private var mHeaderColumnBackgroundColor = Color.WHITE
     private var mDefaultEventColor: Int = 0
     private var mNewEventColor: Int = 0
@@ -1075,6 +1075,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private val refreshRunnable: Runnable
     private val uiHandler = Handler()
+    var isUsingCheckersStyle: Boolean = false
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     //endregion fields and properties
 
@@ -1151,6 +1156,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             minOverlappingMinutes = a.getInt(R.styleable.WeekView_minOverlappingMinutes, 0)
             mIsScrollNumberOfVisibleDays = a.getBoolean(R.styleable.WeekView_isScrollNumberOfVisibleDays, false)
             enableDrawHeaderBackgroundOnlyOnWeekDays = a.getBoolean(R.styleable.WeekView_enableDrawHeaderBackgroundOnlyOnWeekDays, false)
+            isUsingCheckersStyle = a.getBoolean(R.styleable.WeekView_isUsingCheckersStyle, false)
         } finally {
             a.recycle()
         }
@@ -1522,14 +1528,19 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 if (top > mHeaderHeight + (mHeaderRowPadding * 2).toFloat() + mTimeTextHeight / 2 + mHeaderMarginBottom - mHourSeparatorHeight && top < height && startPixel + mWidthPerDay - start > 0) {
                     hourLines[i * 4] = start
                     hourLines[i * 4 + 1] = top
-                    hourLines[i * 4 + 2] = startPixel + mWidthPerDay
+                    hourLines[i * 4 + 2] = startPixel + mWidthPerDay + if (isUsingCheckersStyle) mColumnGap else 0
                     hourLines[i * 4 + 3] = top
                     i++
                 }
             }
-
             // Draw the lines for hours.
             canvas.drawLines(hourLines, mHourSeparatorPaint)
+
+            // Draw line between days (before current one)
+            if (isUsingCheckersStyle) {
+                val x = if (dayNumber == leftDaysWithGaps + 1) start else start - mColumnGap / 2
+                canvas.drawLine(x, mHeaderHeight, x, height.toFloat(), mHourSeparatorPaint)
+            }
 
             // Draw the events.
             drawEvents(day, startPixel, canvas)

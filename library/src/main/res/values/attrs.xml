@@ -67,5 +67,6 @@
         <attr name="dropListenerEnabled" format="boolean"/>
         <attr name="isScrollNumberOfVisibleDays" format="boolean"/>
         <attr name="enableDrawHeaderBackgroundOnlyOnWeekDays" format="boolean"/>
+        <attr name="isUsingCheckersStyle" format="boolean"/>
     </declare-styleable>
 </resources>
