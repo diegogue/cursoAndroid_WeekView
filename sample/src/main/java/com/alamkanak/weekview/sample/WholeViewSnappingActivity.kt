@@ -1,10 +1,12 @@
 package com.alamkanak.weekview.sample
 
+import android.graphics.RectF
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.alamkanak.weekview.WeekView
+import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,8 +33,10 @@ class WholeViewSnappingActivity : BasicActivity() {
 //            override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
 //            }
 //        }
-//        weekView.emptyViewClickListener = null
-//        weekView.emptyViewLongPressListener = null
+//        weekView.columnGap
+//        weekView.dayBackgroundColor=0xffffffff.toInt()
+        weekView.emptyViewClickListener = null
+        weekView.emptyViewLongPressListener = null
         weekView.scrollListener = object : WeekView.ScrollListener {
             val monthFormatter = SimpleDateFormat("MMM", Locale.getDefault())
 
@@ -43,6 +47,16 @@ class WholeViewSnappingActivity : BasicActivity() {
         }
 
         draggable_view.visibility = View.GONE
+
+
+        weekView.addEventClickListener = null
+        weekView.headerRowBackgroundColor = 0xff242b3e.toInt()
+        weekView.headerColumnTextColor = 0xc2c3c3c3.toInt()
+        weekView.nowLineColor = 0xff112d71.toInt()
+        weekView.eventClickListener = object : WeekView.EventClickListener {
+            override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

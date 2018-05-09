@@ -192,7 +192,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
             }
 
             override fun interpretDate(date: Calendar): String {
-                return if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
+                return "a\nb" // if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
             }
         }
     }

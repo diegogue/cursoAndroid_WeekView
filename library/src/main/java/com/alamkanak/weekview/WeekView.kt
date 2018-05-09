@@ -89,7 +89,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val mTimeTextPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var mTimeTextWidth: Float = 0f
     private var mTimeTextHeight: Float = 0f
-    private val mHeaderTextPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mHeaderTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private var mHeaderTextHeight: Float = 0f
     private var mHeaderHeight: Float = 0f
     private var mGestureDetector: GestureDetectorCompat? = null
@@ -108,7 +108,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val mFutureWeekendBackgroundPaint = Paint()
     private val mPastWeekendBackgroundPaint = Paint()
     private val mNowLinePaint = Paint()
-    private val mTodayHeaderTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mTodayHeaderTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val mEventBackgroundPaint = Paint()
     private val mNewEventBackgroundPaint = Paint()
     private var mHeaderColumnWidth: Float = 0f
@@ -573,8 +573,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private val xMinLimit: Float
         get() {
-            return if (maxDate == null) {
-                Integer.MIN_VALUE.toFloat()
+            if (maxDate == null) {
+                return Integer.MIN_VALUE.toFloat()
             } else {
                 val date = maxDate!!.clone() as Calendar
                 date.add(Calendar.DATE, 1 - realNumberOfVisibleDays)
@@ -582,7 +582,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     date.add(Calendar.DATE, 1)
                 }
 
-                getXOriginForDate(date)
+                return getXOriginForDate(date)
             }
         }
 
@@ -1370,7 +1370,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         // Calculate the available width for each day.
         mHeaderColumnWidth = mTimeTextWidth + mHeaderColumnPadding * 2
         mWidthPerDay = width.toFloat() - mHeaderColumnWidth - (mColumnGap * (realNumberOfVisibleDays - 1)).toFloat()
-        mWidthPerDay = mWidthPerDay / realNumberOfVisibleDays
+        mWidthPerDay /= realNumberOfVisibleDays
 
         calculateHeaderHeight() //Make sure the header is the right size (depends on AllDay events)
 
