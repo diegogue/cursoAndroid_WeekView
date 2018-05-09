@@ -93,17 +93,19 @@ object WeekViewUtil {
         return hour * 60 + minute
     }
 
-    /**returns a numeric date format of day&month, based on the current locale.
-     * This is important, as the format is different in many countries. Can be "d/M", "M/d", "d-M", "M-d" ,...*/
+    /**returns a date format of dayOfWeek+day&month, based on the current locale.
+     * This is important, as the format is different in many countries. Especially the numeric part that can be different : "d/M", "M/d", "d-M", "M-d" ,...*/
     @JvmStatic
-    fun getNumericDayAndMonthFormat(context: Context): SimpleDateFormat {
-        val defaultDateFormatPattern = "d/M"
+    fun getWeekdayWithNumericDayAndMonthFormat(context: Context, shortDate: Boolean): SimpleDateFormat {
+        val weekDayFormat = if (shortDate) "EEEEE" else "EEE"
+        val defaultDateFormatPattern = "$weekDayFormat d/M"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             val locale = Locale.getDefault()
             var bestDateTimePattern = DateFormat.getBestDateTimePattern(locale, defaultDateFormatPattern)
             //workaround fix for this issue: https://issuetracker.google.com/issues/79311044
             //TODO if there is a better API that doesn't require this workaround, use it. Be sure to check vs all locales, as done here: https://issuetracker.google.com/issues/37044127
             bestDateTimePattern = bestDateTimePattern.replace("d+".toRegex(), "d").replace("M+".toRegex(), "M")
+            bestDateTimePattern = bestDateTimePattern.replace("E+".toRegex(), weekDayFormat)
             return SimpleDateFormat(bestDateTimePattern, locale)
         }
         try {
@@ -123,7 +125,7 @@ object WeekViewUtil {
                 }
             }
             val dateFormatString = sb.toString()
-            return SimpleDateFormat(dateFormatString, Locale.getDefault())
+            return SimpleDateFormat("$weekDayFormat $dateFormatString", Locale.getDefault())
         } catch (e: Exception) {
             return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
         }

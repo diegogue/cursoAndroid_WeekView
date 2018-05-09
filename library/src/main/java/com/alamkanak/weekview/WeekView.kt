@@ -10,7 +10,6 @@ import android.support.v4.view.animation.FastOutLinearInInterpolator
 import android.support.v7.content.res.AppCompatResources
 import android.text.*
 import android.text.format.DateFormat
-import android.text.format.DateUtils
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -635,24 +634,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 calendar.set(Calendar.MINUTE, 0)
                 calendar.set(Calendar.SECOND, 0)
                 calendar.set(Calendar.MILLISECOND, 0)
-                val dateFormat = DateFormat.getTimeFormat(context)
+                val timeFormat = DateFormat.getTimeFormat(context)
                         ?: SimpleDateFormat("HH:mm", Locale.getDefault())
-                val format = WeekViewUtil.getNumericDayAndMonthFormat(context)
+                val shortDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(context, true)
+                val normalDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(context, false)
                 mDateTimeInterpreter = object : DateTimeInterpreter {
                     override fun interpretTime(hour: Int, minutes: Int): String {
                         calendar.set(Calendar.HOUR_OF_DAY, hour)
                         calendar.set(Calendar.MINUTE, minutes)
-                        return dateFormat.format(calendar.time)
+                        return timeFormat.format(calendar.time)
                     }
 
                     override fun interpretDate(date: Calendar): String {
                         val shortDate = mDayNameLength == LENGTH_SHORT
-                        val weekday =
-                                if (shortDate)
-                                    DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORTEST)
-                                else
-                                    DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORT)
-                        return "$weekday ${format.format(date.time)}"
+                        return if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
                     }
                 }
             }

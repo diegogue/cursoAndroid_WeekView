@@ -5,7 +5,6 @@ import android.graphics.RectF
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.format.DateFormat
-import android.text.format.DateUtils
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -181,23 +180,19 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-        val dateFormat = DateFormat.getTimeFormat(this@BaseActivity)
+        val timeFormat = DateFormat.getTimeFormat(this@BaseActivity)
                 ?: SimpleDateFormat("HH:mm", Locale.getDefault())
-        val format = WeekViewUtil.getNumericDayAndMonthFormat(this)
+        val shortDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, true)
+        val normalDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, false)
         weekView.dateTimeInterpreter = object : DateTimeInterpreter {
             override fun interpretTime(hour: Int, minutes: Int): String {
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
                 calendar.set(Calendar.MINUTE, minutes)
-                return dateFormat.format(calendar.time)
+                return timeFormat.format(calendar.time)
             }
 
             override fun interpretDate(date: Calendar): String {
-                val weekday =
-                        if (shortDate)
-                            DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORTEST)
-                        else
-                            DateUtils.getDayOfWeekString(date.get(Calendar.DAY_OF_WEEK), DateUtils.LENGTH_SHORT)
-                return "$weekday ${format.format(date.time)}"
+                return if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
             }
         }
     }
