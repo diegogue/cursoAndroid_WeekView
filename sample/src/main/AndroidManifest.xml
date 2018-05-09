@@ -17,7 +17,7 @@
             android:name=".BasicActivity" android:label="@string/title_activity_basic"/>
         <activity
             android:name=".AsynchronousActivity" android:label="@string/title_activity_asynchronous"/>
-        <activity
+        <activity android:screenOrientation="userLandscape" android:theme="@style/AppTheme.FullScreen"
             android:name=".WholeViewSnappingActivity" android:label="@string/title_activity_whole_view_snap"/>
     </application>
 
