@@ -146,18 +146,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mStartOriginForScroll = 0f
 
     // Attributes and their default values.
-    private var mHourHeight = 50
+    private var mHourHeight =TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50f, resources.displayMetrics).toInt()
     private var mNewHourHeight = -1
-    var minHourHeight = 0 //no minimum specified (will be dynamic, based on screen)
-    private var mEffectiveMinHourHeight = minHourHeight //compensates for the fact that you can't keep zooming out.
-    var maxHourHeight = 250
-    private var mColumnGap = 10
+    var minHourHeight = 0
+    //no minimum specified (will be dynamic, based on screen)
+    private var mEffectiveMinHourHeight = minHourHeight
+    //compensates for the fact that you can't keep zooming out.
+    var maxHourHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 125f, resources.displayMetrics).toInt()
+    private var mColumnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
     private var mFirstDayOfWeek = Calendar.getInstance().firstDayOfWeek
     private var mTextSize = 12
-    private var mHeaderColumnPadding = 10
+    private var mHeaderColumnPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, resources.displayMetrics).toInt()
     private var mHeaderColumnTextColor = Color.BLACK
     private var mNumberOfVisibleDays = 3
-    private var mHeaderRowPadding = 10
+    private var mHeaderRowPadding =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics).toInt()
     private var mHeaderRowBackgroundColor = Color.WHITE
     private var mDayBackgroundColor = Color.rgb(245, 245, 245)
     private var mPastBackgroundColor = Color.rgb(227, 227, 227)
@@ -165,14 +167,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mPastWeekendBackgroundColor = 0
     private var mFutureWeekendBackgroundColor = 0
     private var mNowLineColor = Color.rgb(102, 102, 102)
-    private var mNowLineThickness = 5
+    private var mNowLineThickness =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
     private var mHourSeparatorColor = Color.rgb(230, 230, 230)
     private var mTodayBackgroundColor = Color.rgb(239, 247, 254)
-    private var mHourSeparatorHeight = 2
+    private var mHourSeparatorHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
     private var mTodayHeaderTextColor = Color.rgb(39, 137, 228)
     private var mEventTextSize = 12
     private var mEventTextColor = Color.BLACK
-    private var mEventPadding = 8
+    private var mEventPadding =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, resources.displayMetrics).toInt()
     private var mHeaderColumnBackgroundColor = Color.WHITE
     private var mDefaultEventColor: Int = 0
     private var mNewEventColor: Int = 0

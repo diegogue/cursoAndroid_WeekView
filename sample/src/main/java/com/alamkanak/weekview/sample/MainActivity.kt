@@ -15,20 +15,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         buttonBasic.setOnClickListener {
-            val intent = Intent(this@MainActivity, BasicActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this@MainActivity, BasicActivity::class.java))
         }
-
         buttonAsynchronous.setOnClickListener {
-            val intent = Intent(this@MainActivity, AsynchronousActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this@MainActivity, AsynchronousActivity::class.java))
         }
         buttonWholeViewSnap.setOnClickListener {
             startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
         }
-        startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
-        finish()
     }
 }
