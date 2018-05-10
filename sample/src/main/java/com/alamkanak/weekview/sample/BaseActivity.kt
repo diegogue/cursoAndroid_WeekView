@@ -108,7 +108,6 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        setupDateTimeInterpreter(id == R.id.action_week_view)
         when (id) {
             R.id.action_today -> {
                 weekView.goToToday()
@@ -140,6 +139,8 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
     }
 
     fun setDayViewType(dayViewType: Int) {
+        setupDateTimeInterpreter(dayViewType==TYPE_WEEK_VIEW)
+
         when (dayViewType) {
             TYPE_DAY_VIEW -> {
                 mWeekViewType = TYPE_DAY_VIEW

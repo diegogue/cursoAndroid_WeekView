@@ -615,10 +615,10 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             if (field == value)
                 return
             field = value
-            mTodayHeaderTextPaint.textSize = field.toFloat()
-            mHeaderTextPaint.textSize = field.toFloat()
-            mTimeTextPaint.textSize = field.toFloat()
-            sideTitleTextPaint.textSize = field.toFloat()
+            mTodayHeaderTextPaint.textSize = value.toFloat()
+            mHeaderTextPaint.textSize = value.toFloat()
+            mTimeTextPaint.textSize = value.toFloat()
+            sideTitleTextPaint.textSize = value.toFloat()
             invalidate()
         }
 
@@ -1027,6 +1027,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mHeaderTextPaint.color = headerColumnTextColor
         mHeaderTextPaint.textAlign = Paint.Align.CENTER
         mHeaderTextPaint.textSize = textSize.toFloat()
+//        WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(context,)
         mHeaderTextPaint.getTextBounds(exampleTime, 0, exampleTime.length, rect)
         mHeaderTextHeight = rect.height().toFloat()
         mHeaderTextPaint.typeface = typeface
