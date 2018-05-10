@@ -337,7 +337,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val mGestureListener = object : GestureDetector.SimpleOnGestureListener() {
 
         override fun onDown(e: MotionEvent): Boolean {
-            mStartOriginForScroll = mCurrentOrigin.x
             goToNearestOrigin()
             return true
         }
@@ -2332,6 +2331,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mRefreshEvents = true
 
         mCurrentOrigin.x = -daysBetween(mHomeDate!!, date) * (mWidthPerDay + mColumnGap)
+        mStartOriginForScroll = mCurrentOrigin.x
         invalidate()
     }
 
