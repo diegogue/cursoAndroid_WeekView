@@ -18,7 +18,7 @@
         app:autoLimitTime="false"
         app:headerRowBackgroundColor="@color/toolbar"
         app:dayBackgroundColor="#05000000"
-        app:todayBackgroundColor="#1848adff"
+        app:todayColumnBackgroundColor="#1848adff"
         app:headerColumnBackground="#ffffffff"
         app:todayHeaderTextColor="@color/accent"
         app:newEventTimeResolutionInMinutes="15"

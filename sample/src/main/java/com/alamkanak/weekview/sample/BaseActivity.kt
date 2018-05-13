@@ -147,24 +147,24 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
                 weekView.numberOfVisibleDays = 1
                 // Lets change some dimensions to best fit the view.
                 weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
-                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics).toInt()
-                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
             }
             TYPE_THREE_DAY_VIEW -> {
                 mWeekViewType = TYPE_THREE_DAY_VIEW
                 weekView.numberOfVisibleDays = 3
                 // Lets change some dimensions to best fit the view.
                 weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
-                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics).toInt()
-                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
             }
             TYPE_WEEK_VIEW -> {
                 mWeekViewType = TYPE_WEEK_VIEW
                 weekView.numberOfVisibleDays = 7
                 // Lets change some dimensions to best fit the view.
                 weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt()
-                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
-                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
+                weekView.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics)
+                weekView.eventTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics)
             }
         }
     }
@@ -175,7 +175,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
      *
      * @param shortDate True if the date values should be short.
      */
-    private fun setupDateTimeInterpreter(shortDate: Boolean) {
+    protected open fun setupDateTimeInterpreter(shortDate: Boolean) {
         val calendar = Calendar.getInstance().apply {
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)

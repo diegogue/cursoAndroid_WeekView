@@ -57,7 +57,7 @@
         <attr name="showNowLine" format="boolean"/>
         <attr name="textSize" format="dimension"/>
         <attr name="timeColumnResolution" format="integer"/>
-        <attr name="todayBackgroundColor" format="color"/>
+        <attr name="todayColumnBackgroundColor" format="color"/>
         <attr name="todayHeaderTextColor" format="color"/>
         <attr name="verticalFlingEnabled" format="boolean"/>
         <attr name="xScrollingSpeed" format="float"/>
@@ -67,5 +67,9 @@
         <attr name="isScrollNumberOfVisibleDays" format="boolean"/>
         <attr name="enableDrawHeaderBackgroundOnlyOnWeekDays" format="boolean"/>
         <attr name="isUsingCheckersStyle" format="boolean"/>
+        <attr name="headerWeekDayTitleTextSize" format="dimension"/>
+        <attr name="headerWeekDaySubtitleTextSize" format="dimension"/>
+        <attr name="spaceBetweenHeaderWeekDayTitleAndSubtitle" format="dimension"/>
+
     </declare-styleable>
 </resources>

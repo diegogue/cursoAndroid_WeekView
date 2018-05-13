@@ -2,10 +2,13 @@ package com.alamkanak.weekview.sample
 
 import android.graphics.RectF
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.alamkanak.weekview.DateTimeInterpreter
+import com.alamkanak.weekview.WeekDaySubtitleInterpreter
 import com.alamkanak.weekview.WeekView
 import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
@@ -17,7 +20,9 @@ import java.util.*
  */
 class WholeViewSnappingActivity : BasicActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+//        window.setBackgroundDrawable(ColorDrawable(0))
         super.onCreate(savedInstanceState)
+
         weekView.isShowNowLine = true
 //        weekView.setAutoLimitTime(true)
         weekView.setLimitTime(0, 24)
@@ -51,6 +56,31 @@ class WholeViewSnappingActivity : BasicActivity() {
         weekView.eventClickListener = object : WeekView.EventClickListener {
             override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
             }
+        }
+        weekView.weekDaySubtitleInterpreter = object : WeekDaySubtitleInterpreter {
+            val dateFormatTitle = SimpleDateFormat("d", Locale.getDefault())
+
+            override fun interpretDate(date: Calendar): String = dateFormatTitle.format(date.time)
+        }
+    }
+
+    override fun setupDateTimeInterpreter(shortDate: Boolean) {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val timeFormat = DateFormat.getTimeFormat(this)
+                ?: SimpleDateFormat("HH:mm", Locale.getDefault())
+        val dateFormatTitle = SimpleDateFormat("EEE", Locale.getDefault())
+        weekView.dateTimeInterpreter = object : DateTimeInterpreter {
+            override fun interpretTime(hour: Int, minutes: Int): String {
+                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                calendar.set(Calendar.MINUTE, minutes)
+                return timeFormat.format(calendar.time)
+            }
+
+            override fun interpretDate(date: Calendar): String = dateFormatTitle.format(date.time)
         }
     }
 
