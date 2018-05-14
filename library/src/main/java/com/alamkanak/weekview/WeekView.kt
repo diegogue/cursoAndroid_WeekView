@@ -820,21 +820,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             invalidate()
         }
 
-    var weekDaysHeaderRowPadding: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f, resources.displayMetrics).toInt()
+    var weekDaysHeaderRowPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f, resources.displayMetrics).toInt()
         set(value) {
             field = value
             invalidate()
         }
 
-    var spaceBetweenWeekDaysAndAllDayEvents: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0f, resources.displayMetrics).toInt()
-        set(value) {
-            if (field == value)
-                return
-            field = value
-            invalidate()
-        }
-
-    var spaceBelowAllDayEvents: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, resources.displayMetrics).toInt()
+    var spaceBetweenWeekDaysAndAllDayEvents = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, resources.displayMetrics).toInt()
         set(value) {
             if (field == value)
                 return
@@ -842,7 +834,15 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             invalidate()
         }
 
-    var spaceBetweenHeaderWeekDayTitleAndSubtitle: Int = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f, context.resources.displayMetrics).toInt()
+    var spaceBelowAllDayEvents = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3f, resources.displayMetrics).toInt()
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            invalidate()
+        }
+
+    var spaceBetweenHeaderWeekDayTitleAndSubtitle = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f, context.resources.displayMetrics).toInt()
         set(value) {
             if (field == value)
                 return
@@ -1101,19 +1101,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         sideTitleTextPaint.typeface = typeface
 
         // Measure settings for header row.
+        //TODO measure the text that will actually be used, based on the locale and dates. Important because various characters might look different.
+        val sampleText = "ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789"
         mHeaderWeekDayTitleTextPaint.color = headerColumnTextColor
         mHeaderWeekDayTitleTextPaint.textSize = headerWeekDayTitleTextSize
         mHeaderWeekDayTitleTextPaint.typeface = typeface
-        mHeaderWeekDayTitleTextPaint.getTextBounds("ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789", 0, exampleTime.length, rect)
+        mHeaderWeekDayTitleTextPaint.getTextBounds(sampleText, 0, sampleText.length, rect)
         mHeaderWeekDayTitleTextHeight = rect.height().toFloat()
 
         //measure settings for header subtitle
         mHeaderWeekDaySubtitleTextPaint.color = headerColumnTextColor
         mHeaderWeekDaySubtitleTextPaint.textSize = headerWeekDaySubtitleTextSize
         mHeaderWeekDaySubtitleTextPaint.typeface = typeface
-        mHeaderWeekDaySubtitleTextPaint.getTextBounds("ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789", 0, exampleTime.length, rect)
+        mHeaderWeekDaySubtitleTextPaint.getTextBounds(sampleText, 0, sampleText.length, rect)
         mHeaderWeekDaySubtitleTextHeight = rect.height().toFloat()
-
 
         // Prepare header background paint.
         mHeaderBackgroundPaint.color = headerRowBackgroundColor
@@ -1475,10 +1476,10 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         canvas.clipRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, mHeaderHeight + weekDaysHeaderRowPadding * 2)
         val headerTitleAndSubtitleTextHeight = mHeaderWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) mHeaderWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
         if (enableDrawHeaderBackgroundOnlyOnWeekDays)
-            canvas.drawRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, headerTitleAndSubtitleTextHeight
-                    + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
+            canvas.drawRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
         else
-            canvas.drawRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, mHeaderHeight + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
+            canvas.drawRect(canvas.clipBounds, mHeaderBackgroundPaint)
+//            canvas.drawRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, mHeaderHeight + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
 
         // draw text on the left of the week days
         if (!TextUtils.isEmpty(sideTitleText))
@@ -1521,7 +1522,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 //draw day subtitle
                 if (isSubtitleHeaderEnabled) {
                     val subtitleText = weekDaySubtitleInterpreter!!.interpretDate(day)
-                    canvas.drawText(subtitleText, startPixel + mWidthPerDay / 2, headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding + spaceBetweenHeaderWeekDayTitleAndSubtitle,
+                    canvas.drawText(subtitleText, startPixel + mWidthPerDay / 2, headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding,
                             if (isToday) mHeaderWeekDaySubtitleTodayTextPaint else mHeaderWeekDaySubtitleTextPaint)
                 }
                 drawAllDayEvents(day, startPixel, canvas)
