@@ -63,7 +63,6 @@
         <attr name="xScrollingSpeed" format="float"/>
         <attr name="zoomFocusPoint" format="fraction"/>
         <attr name="zoomFocusPointEnabled" format="boolean"/>
-        <attr name="dropListenerEnabled" format="boolean"/>
         <attr name="isScrollNumberOfVisibleDays" format="boolean"/>
         <attr name="enableDrawHeaderBackgroundOnlyOnWeekDays" format="boolean"/>
         <attr name="isUsingCheckersStyle" format="boolean"/>

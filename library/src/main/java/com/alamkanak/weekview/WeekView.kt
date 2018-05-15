@@ -208,13 +208,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             invalidate()
         }
 
-    var isDropListenerEnabled = false
-        set(value) {
-            if (field == value)
-                return
-            field = value
-            setOnDragListener(if (value) DragListener() else null)
-        }
     var minOverlappingMinutes = 0
 
     // Listeners.
@@ -230,7 +223,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     var emptyViewLongPressListener: EmptyViewLongPressListener? = null
     var scrollListener: ScrollListener? = null
     var addEventClickListener: AddEventClickListener? = null
-    var weekViewDropListener: DropListener? = null
+    var dropListener: DropListener? = null
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            setOnDragListener(if (value != null) DragListener() else null)
+        }
+
     var enableDrawHeaderBackgroundOnlyOnWeekDays = false
         set(value) {
             if (field == value)
@@ -1049,7 +1049,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             autoLimitTime = a.getBoolean(R.styleable.WeekView_autoLimitTime, autoLimitTime)
             mMinTime = a.getInt(R.styleable.WeekView_minTime, mMinTime)
             mMaxTime = a.getInt(R.styleable.WeekView_maxTime, mMaxTime)
-            isDropListenerEnabled = a.getBoolean(R.styleable.WeekView_dropListenerEnabled, isDropListenerEnabled)
             minOverlappingMinutes = a.getInt(R.styleable.WeekView_minOverlappingMinutes, minOverlappingMinutes)
             isScrollNumberOfVisibleDays = a.getBoolean(R.styleable.WeekView_isScrollNumberOfVisibleDays, isScrollNumberOfVisibleDays)
             enableDrawHeaderBackgroundOnlyOnWeekDays = a.getBoolean(R.styleable.WeekView_enableDrawHeaderBackgroundOnlyOnWeekDays, enableDrawHeaderBackgroundOnlyOnWeekDays)
@@ -2445,7 +2444,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     if (e.x > mHeaderColumnWidth && e.y > headerTitleAndSubtitleTextHeight + (weekDaysHeaderRowPadding * 2).toFloat() + spaceBelowAllDayEvents) {
                         val selectedTime = getTimeFromPoint(e.x, e.y)
                         if (selectedTime != null) {
-                            weekViewDropListener!!.onDrop(v, selectedTime)
+                            dropListener!!.onDrop(v, selectedTime)
                         }
                     }
                 }

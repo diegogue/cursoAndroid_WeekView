@@ -23,7 +23,6 @@
         app:todayHeaderTextColor="@color/accent"
         app:newEventTimeResolutionInMinutes="15"
         app:timeColumnResolution="60"
-        app:dropListenerEnabled="true"
         app:minOverlappingMinutes="5" />
 
     <TextView

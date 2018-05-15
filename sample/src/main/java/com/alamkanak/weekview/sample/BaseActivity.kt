@@ -52,7 +52,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         weekView.addEventClickListener = this
 
         // Set Drag and Drop Listener
-        weekView.weekViewDropListener = this
+        weekView.dropListener = this
 
         // Set minDate
         /*Calendar minDate = Calendar.getInstance();
@@ -139,7 +139,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
     }
 
     fun setDayViewType(dayViewType: Int) {
-        setupDateTimeInterpreter(dayViewType==TYPE_WEEK_VIEW)
+        setupDateTimeInterpreter(dayViewType == TYPE_WEEK_VIEW)
 
         when (dayViewType) {
             TYPE_DAY_VIEW -> {

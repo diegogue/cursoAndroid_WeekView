@@ -1,6 +1,5 @@
 package com.alamkanak.weekview.sample
 
-import android.graphics.RectF
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.util.TypedValue
@@ -10,7 +9,6 @@ import android.view.View
 import com.alamkanak.weekview.DateTimeInterpreter
 import com.alamkanak.weekview.WeekDaySubtitleInterpreter
 import com.alamkanak.weekview.WeekView
-import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,20 +28,13 @@ class WholeViewSnappingActivity : BasicActivity() {
         weekView.columnGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics).toInt()
         weekView.hourSeparatorHeight = weekView.columnGap
         weekView.isScrollNumberOfVisibleDays = true
+        weekView.dropListener = null
         setDayViewType(TYPE_WEEK_VIEW)
         val cal = Calendar.getInstance()
         val currentHour = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60.0
         weekView.goToHour(Math.max(currentHour - 1, 0.0))
         cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
         weekView.goToDate(cal)
-//        weekView.addEventClickListener = null
-//        weekView.eventClickListener = object : WeekView.EventClickListener {
-//            override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
-//            }
-//        }
-
-        weekView.emptyViewClickListener = null
-        weekView.emptyViewLongPressListener = null
         weekView.scrollListener = object : WeekView.ScrollListener {
             val monthFormatter = SimpleDateFormat("MMM", Locale.getDefault())
             override fun onFirstVisibleDayChanged(newFirstVisibleDay: Calendar, oldFirstVisibleDay: Calendar?) {
@@ -51,12 +42,6 @@ class WholeViewSnappingActivity : BasicActivity() {
             }
         }
         draggable_view.visibility = View.GONE
-
-
-        weekView.eventClickListener = object : WeekView.EventClickListener {
-            override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
-            }
-        }
         weekView.weekDaySubtitleInterpreter = object : WeekDaySubtitleInterpreter {
             val dateFormatTitle = SimpleDateFormat("d", Locale.getDefault())
 
