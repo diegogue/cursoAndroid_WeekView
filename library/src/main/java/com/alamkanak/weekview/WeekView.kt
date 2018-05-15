@@ -1226,7 +1226,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     override fun onDraw(canvas: Canvas) {
-//        super.onDraw(canvas)
+        super.onDraw(canvas)
         // Draw the header row.
         drawHeaderRowAndEvents(canvas)
 
