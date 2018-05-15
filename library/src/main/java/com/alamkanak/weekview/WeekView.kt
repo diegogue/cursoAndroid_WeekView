@@ -77,23 +77,16 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             mCurrentOrigin.x = 0f
             invalidate()
         }
-    private val mTimeTextPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var mTimeTextWidth: Float = 0f
-    private var mTimeTextHeight: Float = 0f
+    private val mTimeTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val mHeaderWeekDayTitleTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-    private var mHeaderWeekDayTitleTextHeight: Float = 0f
-    private var mHeaderHeight: Float = 0f
     private val mHeaderWeekDaySubtitleTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-    private var mHeaderWeekDaySubtitleTextHeight: Float = 0f
     private val mHeaderWeekDayTitleTodayTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val mHeaderWeekDaySubtitleTodayTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-    private var mGestureDetector: GestureDetectorCompat? = null
-    private var mScroller: OverScroller? = null
-    private val mCurrentOrigin = PointF(0f, 0f)
-    private var mCurrentScrollDirection = Direction.NONE
+    private val mEventTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.LINEAR_TEXT_FLAG)
+    private val sideTitleTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+    private val allDaySideTitleTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
     private val mEmptyEventPaint = Paint()
     private val mHeaderBackgroundPaint: Paint = Paint()
-    private var mWidthPerDay: Float = 0f
     private val mDayBackgroundPaint: Paint = Paint()
     private val mHourSeparatorPaint = Paint()
     private val mTodayColumnBackgroundPaint: Paint = Paint()
@@ -104,11 +97,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val mNowLinePaint = Paint()
     private val mEventBackgroundPaint = Paint()
     private val mNewEventBackgroundPaint = Paint()
+    private var containsAllDayEvent: Boolean = false
+    private var mTimeTextWidth: Float = 0f
+    private var mTimeTextHeight: Float = 0f
+    private var mHeaderWeekDayTitleTextHeight: Float = 0f
+    private var mHeaderHeight: Float = 0f
+    private var mHeaderWeekDaySubtitleTextHeight: Float = 0f
+    private var mGestureDetector: GestureDetectorCompat? = null
+    private var mScroller: OverScroller? = null
+    private val mCurrentOrigin = PointF(0f, 0f)
+    private var mCurrentScrollDirection = Direction.NONE
+    private var mWidthPerDay: Float = 0f
     private var mHeaderColumnWidth: Float = 0f
     private var mEventRects: MutableList<EventRect>? = null
     private var mEvents: MutableList<WeekViewEvent>? = null
-    private val mEventTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.LINEAR_TEXT_FLAG)
-    private val mHeaderColumnBackgroundPaint: Paint = Paint()
     private var mFetchedPeriod = -1 // the middle period the calendar has fetched.
     private var mRefreshEvents = false
     private var mCurrentFlingDirection = Direction.NONE
@@ -139,8 +141,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mDistanceMin: Float = 0f
     private var mOffsetValueToSecureScreen = 9
     private var mStartOriginForScroll = 0f
-
-    // Attributes and their default values.
     private var mNewHourHeight = -1
     var minHourHeight = 0
     //no minimum specified (will be dynamic, based on screen)
@@ -152,7 +152,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     var newEventLengthInMinutes = 60
     var newEventTimeResolutionInMinutes = 15
     var isShowFirstDayOfWeekFirst = false
-
     private var mIsFirstDraw = true
     private var mAreDimensionsInvalid = true
     /**
@@ -176,7 +175,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     /**
      *  the height of AllDay-events.
      */
-    var allDayEventHeight = 100
+    var allDayEventHeight =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40f, resources.displayMetrics).toInt()
     /**
      * If you set this to false the `zoomFocusPoint` won't take effect any more while zooming.
      * The zoom will always be focused at the center of your gesture.
@@ -192,6 +191,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 field = value
                 init()
             }
+        }
+    var allDaySideTitleText: String? = null
+        set(value) {
+            if (value == field)
+                return
+            field = value
+            invalidate()
         }
 
     private var mMinTime = 0
@@ -245,8 +251,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             field = value
             invalidate()
         }
-    private val sideTitleTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
 
     private val mGestureListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -633,7 +637,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 return
             field = value
             mTimeTextPaint.textSize = value
-            sideTitleTextPaint.textSize = value
+            allDaySideTitleTextPaint.textSize = value
             invalidate()
         }
 
@@ -678,8 +682,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             mHeaderWeekDaySubtitleTextPaint.color = value
             mTimeTextPaint.color = value
             sideTitleTextPaint.color = value
+            allDaySideTitleTextPaint.color = value
             invalidate()
         }
+
+    @ColorInt
+    var allDaySideTitleTextColor = headerColumnTextColor
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            allDaySideTitleTextPaint.color = value
+            invalidate()
+        }
+
 
     @ColorInt
     var headerRowBackgroundColor: Int = Color.WHITE
@@ -765,16 +781,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             if (field == value)
                 return
             field = value
-            invalidate()
-        }
-
-    @ColorInt
-    var headerColumnBackgroundColor: Int = Color.WHITE
-        set(value) {
-            if (field == value)
-                return
-            field = value
-            mHeaderColumnBackgroundPaint.color = value
             invalidate()
         }
 
@@ -1030,7 +1036,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             newEventLengthInMinutes = a.getInt(R.styleable.WeekView_newEventLengthInMinutes, newEventLengthInMinutes)
             newEventTimeResolutionInMinutes = a.getInt(R.styleable.WeekView_newEventTimeResolutionInMinutes, newEventTimeResolutionInMinutes)
             eventPadding = a.getDimensionPixelSize(R.styleable.WeekView_eventPadding, eventPadding)
-            headerColumnBackgroundColor = a.getColor(R.styleable.WeekView_headerColumnBackground, headerColumnBackgroundColor)
             dayNameLength = a.getInteger(R.styleable.WeekView_dayNameLength, dayNameLength)
             overlappingEventGap = a.getDimensionPixelSize(R.styleable.WeekView_overlappingEventGap, overlappingEventGap)
             spaceBetweenWeekDaysAndAllDayEvents = a.getDimensionPixelSize(R.styleable.WeekView_spaceBetweenWeekDaysAndAllDayEvents, spaceBetweenWeekDaysAndAllDayEvents)
@@ -1063,6 +1068,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mHeaderWeekDayTitleTextPaint.textAlign = Paint.Align.CENTER
         mHeaderWeekDaySubtitleTextPaint.textAlign = Paint.Align.CENTER
         sideTitleTextPaint.textAlign = Paint.Align.CENTER
+        allDaySideTitleTextPaint.textAlign = Paint.Align.CENTER
         mTimeTextPaint.textAlign = Paint.Align.RIGHT
         mEventTextPaint.style = Paint.Style.FILL
         mHourSeparatorPaint.style = Paint.Style.STROKE
@@ -1095,9 +1101,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         initTextTimeWidth()
 
         //handle sideTitleTextPaint
-        sideTitleTextPaint.textSize = textSize
         sideTitleTextPaint.color = headerColumnTextColor
         sideTitleTextPaint.typeface = typeface
+
+        //handle allDaySideTitleTextPaint
+        allDaySideTitleTextPaint.textSize = textSize
+        allDaySideTitleTextPaint.color = allDaySideTitleTextColor
+        allDaySideTitleTextPaint.typeface = typeface
 
         // Measure settings for header row.
         //TODO measure the text that will actually be used, based on the locale and dates. Important because various characters might look different.
@@ -1150,9 +1160,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mEventBackgroundPaint.color = Color.rgb(174, 208, 238)
         // Prepare empty event background color.
         mNewEventBackgroundPaint.color = Color.rgb(60, 147, 217)
-
-        // Prepare header column background color.
-        mHeaderColumnBackgroundPaint.color = headerColumnBackgroundColor
 
         // Prepare event text size and color.
         mEventTextPaint.color = eventTextColor
@@ -1229,20 +1236,20 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private fun calculateHeaderHeight() {
         //Make sure the header is the right size (depends on AllDay events)
-        var containsAllDayEvent = false
+        containsAllDayEvent = false
         if (mEventRects != null && mEventRects!!.size > 0) {
+            val day = firstVisibleDay!!.clone() as Calendar
             for (dayNumber in 0 until realNumberOfVisibleDays) {
-                val day = firstVisibleDay!!.clone() as Calendar
-                day.add(Calendar.DATE, dayNumber)
                 for (i in mEventRects!!.indices) {
-                    if (isSameDay(mEventRects!![i].event.startTime!!, day) && mEventRects!![i].event.isAllDay) {
+                    val event = mEventRects!![i].event
+                    if (isSameDay(event.startTime!!, day) && event.isAllDay) {
                         containsAllDayEvent = true
                         break
                     }
                 }
-                if (containsAllDayEvent) {
+                if (containsAllDayEvent)
                     break
-                }
+                day.add(Calendar.DATE, 1)
             }
         }
         mHeaderHeight = if (containsAllDayEvent) {
@@ -1255,9 +1262,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun drawTimeColumnAndAxes(canvas: Canvas) {
-        // Draw the background color for the header column.
-        canvas.drawRect(0f, mHeaderHeight + weekDaysHeaderRowPadding * 2, mHeaderColumnWidth, height.toFloat(), mHeaderColumnBackgroundPaint)
-        canvas.restore()
         canvas.save()
         // Clip to paint in left column only.
         canvas.clipRect(0.0f, mHeaderHeight + weekDaysHeaderRowPadding * 2, mHeaderColumnWidth, height.toFloat())
@@ -1490,6 +1494,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         canvas.save()
         canvas.clipRect(mHeaderColumnWidth, 0f, width.toFloat(), mHeaderHeight + weekDaysHeaderRowPadding * 2)
 
+
         // Draw the header background.
         if (enableDrawHeaderBackgroundOnlyOnWeekDays)
             canvas.drawRect(0f, 0f, width.toFloat(), headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
@@ -1524,10 +1529,23 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     canvas.drawText(subtitleText, startPixel + mWidthPerDay / 2, headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding,
                             if (isToday) mHeaderWeekDaySubtitleTodayTextPaint else mHeaderWeekDaySubtitleTextPaint)
                 }
-                drawAllDayEvents(day, startPixel, canvas)
+                if (containsAllDayEvent)
+                    drawAllDayEvents(day, startPixel, canvas)
                 startPixel += mWidthPerDay + columnGap
                 day.add(Calendar.DAY_OF_YEAR, 1)
             }
+        }
+        canvas.restore()
+        //draw text on the left of the all-day events
+        if (containsAllDayEvent && !TextUtils.isEmpty(allDaySideTitleText)) {
+            canvas.save()
+            val headerTitleAndSubtitleTextHeight = mHeaderWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) mHeaderWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
+            val weekDaysHeight = headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding * 2
+            val top = weekDaysHeight + spaceBetweenWeekDaysAndAllDayEvents + mTimeTextHeight / 2
+            val bottom = top + allDayEventHeight
+            canvas.clipRect(0f, 0f, top, bottom)
+            canvas.drawText(allDaySideTitleText, mHeaderColumnWidth / 2, (top+bottom)/2, allDaySideTitleTextPaint)
+            canvas.restore()
         }
     }
 
@@ -1647,7 +1665,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param canvas         The canvas to draw upon.
      */
     private fun drawAllDayEvents(date: Calendar, startFromPixel: Float, canvas: Canvas) {
-        if (mEventRects != null && mEventRects!!.size > 0) {
+        if (mEventRects != null && mEventRects!!.isNotEmpty()) {
             val headerTitleAndSubtitleTextHeight = mHeaderWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) mHeaderWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
 
             for (i in mEventRects!!.indices) {

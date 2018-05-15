@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         buttonWholeViewSnap.setOnClickListener {
             startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
         }
-        startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
-        finish()
+//        startActivity(Intent(this@MainActivity, WholeViewSnappingActivity::class.java))
+//        finish()
     }
 }

@@ -23,7 +23,7 @@
 
         <activity
             android:name=".WholeViewSnappingActivity" android:label="@string/title_activity_whole_view_snap"
-            android:screenOrientation="userLandscape" android:theme="@style/AppTheme.FullScreen"/>
+            android:screenOrientation="reverseLandscape" android:theme="@style/AppTheme.FullScreen"/>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.alamkanak.weekview.sample
 
+import android.graphics.RectF
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.util.TypedValue
@@ -9,6 +10,7 @@ import android.view.View
 import com.alamkanak.weekview.DateTimeInterpreter
 import com.alamkanak.weekview.WeekDaySubtitleInterpreter
 import com.alamkanak.weekview.WeekView
+import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,7 +20,6 @@ import java.util.*
  */
 class WholeViewSnappingActivity : BasicActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-//        window.setBackgroundDrawable(ColorDrawable(0))
         super.onCreate(savedInstanceState)
 
         weekView.isShowNowLine = true
@@ -29,6 +30,7 @@ class WholeViewSnappingActivity : BasicActivity() {
         weekView.hourSeparatorHeight = weekView.columnGap
         weekView.isScrollNumberOfVisibleDays = true
         weekView.dropListener = null
+        weekView.allDaySideTitleText = getString(R.string.all_day)
         setDayViewType(TYPE_WEEK_VIEW)
         val cal = Calendar.getInstance()
         val currentHour = cal.get(Calendar.HOUR_OF_DAY) + cal.get(Calendar.MINUTE) / 60.0
@@ -46,6 +48,10 @@ class WholeViewSnappingActivity : BasicActivity() {
             val dateFormatTitle = SimpleDateFormat("d", Locale.getDefault())
 
             override fun interpretDate(date: Calendar): String = dateFormatTitle.format(date.time)
+        }
+        weekView.eventClickListener = object : WeekView.EventClickListener {
+            override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
+            }
         }
     }
 

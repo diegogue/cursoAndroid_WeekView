@@ -25,7 +25,6 @@
         </attr>
         <attr name="futureBackgroundColor" format="color"/>
         <attr name="futureWeekendBackgroundColor" format="color"/>
-        <attr name="headerColumnBackground" format="color"/>
         <attr name="headerColumnPadding" format="dimension"/>
         <attr name="headerColumnTextColor" format="color"/>
         <attr name="headerRowBackgroundColor" format="color"/>

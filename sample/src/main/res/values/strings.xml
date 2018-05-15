@@ -10,4 +10,5 @@
     <string name="async_error">Could not download events from the internet</string>
     <string name="drag_me">Drag Me</string>
     <string name="title_activity_whole_view_snap">Whole view snap</string>
+    <string name="all_day">All day</string>
 </resources>
