@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.graphics.RectF
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
@@ -12,9 +11,11 @@ import android.view.View
 import android.widget.Toast
 import com.alamkanak.weekview.*
 import kotlinx.android.synthetic.main.activity_base.*
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+//import android.text.format.DateFormat
 /**
  * This is a base activity which contains week view and all the codes necessary to initialize the
  * week view.
@@ -23,9 +24,13 @@ import java.util.*
  */
 abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener, WeekView.EmptyViewClickListener, WeekView.AddEventClickListener, WeekView.DropListener {
     private var mWeekViewType = TYPE_THREE_DAY_VIEW
+    private lateinit var shortDateFormat: DateFormat
+    private lateinit var timeFormat: DateFormat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shortDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this, true)
+        timeFormat = android.text.format.DateFormat.getTimeFormat(this) ?: SimpleDateFormat("HH:mm", Locale.getDefault())
         setContentView(R.layout.activity_base)
 
         draggable_view.setOnLongClickListener(DragTapListener())
@@ -181,9 +186,6 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
-        val timeFormat = DateFormat.getTimeFormat(this@BaseActivity)
-                ?: SimpleDateFormat("HH:mm", Locale.getDefault())
-        val shortDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, true)
         val normalDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, false)
         weekView.dateTimeInterpreter = object : DateTimeInterpreter {
             override fun interpretTime(hour: Int, minutes: Int): String {
@@ -198,8 +200,13 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         }
     }
 
-    protected fun getEventTitle(time: Calendar): String {
-        return String.format("Event of %02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH))
+    protected fun getEventTitle(cal: Calendar, endCal: Calendar? = null): String {
+        val date = cal.time
+        if (endCal == null)
+            return "${shortDateFormat.format(date)} ${timeFormat.format(date)}"
+        else
+            return "${shortDateFormat.format(date)} ${timeFormat.format(date)}..${timeFormat.format(endCal.time)}"
+//        return String.format("%02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH))
     }
 
     override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {

@@ -96,7 +96,7 @@ object WeekViewUtil {
     /**returns a date format of dayOfWeek+day&month, based on the current locale.
      * This is important, as the format is different in many countries. Especially the numeric part that can be different : "d/M", "M/d", "d-M", "M-d" ,...*/
     @JvmStatic
-    fun getWeekdayWithNumericDayAndMonthFormat(context: Context, shortDate: Boolean): SimpleDateFormat {
+    fun getWeekdayWithNumericDayAndMonthFormat(context: Context, shortDate: Boolean): java.text.DateFormat {
         val weekDayFormat = if (shortDate) "EEEEE" else "EEE"
         val defaultDateFormatPattern = "$weekDayFormat d/M"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

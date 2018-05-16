@@ -175,7 +175,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     /**
      *  the height of AllDay-events.
      */
-    var allDayEventHeight =  TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40f, resources.displayMetrics).toInt()
+    var allDayEventHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40f, resources.displayMetrics).toInt()
     /**
      * If you set this to false the `zoomFocusPoint` won't take effect any more while zooming.
      * The zoom will always be focused at the center of your gesture.
@@ -516,7 +516,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private
     val eventsTop: Float
-        get() = mCurrentOrigin.y + mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + spaceBelowAllDayEvents + mTimeTextHeight / 2 + spaceBetweenWeekDaysAndAllDayEvents.toFloat() - minHourOffset
+        get() = mCurrentOrigin.y + mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat()  + mTimeTextHeight / 2 - minHourOffset
 
     private val leftDaysWithGaps: Int
         get() = (-Math.ceil((mCurrentOrigin.x / (mWidthPerDay + columnGap)).toDouble())).toInt()
@@ -1432,14 +1432,16 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         else -> canvas.drawRect(start, startY, startPixel + mWidthPerDay, height.toFloat(), futurePaint)
                     }
                 } else {
-                    canvas.drawRect(start, mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mTimeTextHeight / 2 + spaceBelowAllDayEvents, startPixel + mWidthPerDay, height.toFloat(), if (isToday) mTodayColumnBackgroundPaint else mDayBackgroundPaint)
+                    val cellBackgroundPaint = if (isToday) mTodayColumnBackgroundPaint else mDayBackgroundPaint
+                    if (cellBackgroundPaint.color != 0)
+                        canvas.drawRect(start, mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mTimeTextHeight / 2 + spaceBelowAllDayEvents, startPixel + mWidthPerDay, height.toFloat(), cellBackgroundPaint)
                 }
             }
 
             // Prepare the separator lines for hours.
             var i = 0
             for (hourNumber in mMinTime until mMaxTime) {
-                val top = mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mCurrentOrigin.y + (hourHeight * (hourNumber - mMinTime)).toFloat() + mTimeTextHeight / 2 + spaceBelowAllDayEvents
+                val top = mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mCurrentOrigin.y + (hourHeight * (hourNumber - mMinTime)).toFloat() + mTimeTextHeight / 2
                 if (top > mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mTimeTextHeight / 2 + spaceBelowAllDayEvents - hourSeparatorHeight && top < height && startPixel + mWidthPerDay - start > 0) {
                     hourLines[i * 4] = start
                     hourLines[i * 4 + 1] = top
@@ -1544,7 +1546,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             val top = weekDaysHeight + spaceBetweenWeekDaysAndAllDayEvents + mTimeTextHeight / 2
             val bottom = top + allDayEventHeight
             canvas.clipRect(0f, 0f, top, bottom)
-            canvas.drawText(allDaySideTitleText, mHeaderColumnWidth / 2, (top+bottom)/2, allDaySideTitleTextPaint)
+            canvas.drawText(allDaySideTitleText, mHeaderColumnWidth / 2, (top + bottom) / 2, allDaySideTitleTextPaint)
             canvas.restore()
         }
     }
