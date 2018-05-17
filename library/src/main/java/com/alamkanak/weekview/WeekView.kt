@@ -516,7 +516,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private
     val eventsTop: Float
-        get() = mCurrentOrigin.y + mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat()  + mTimeTextHeight / 2 - minHourOffset
+        get() = mCurrentOrigin.y + mHeaderHeight + (weekDaysHeaderRowPadding * 2).toFloat() + mTimeTextHeight / 2 - minHourOffset
 
     private val leftDaysWithGaps: Int
         get() = (-Math.ceil((mCurrentOrigin.x / (mWidthPerDay + columnGap)).toDouble())).toInt()
@@ -1885,7 +1885,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param event The event to cache.
      */
     private fun cacheEvent(event: WeekViewEvent) {
-        if (event.startTime!! >= event.endTime)
+        if (!event.isAllDay && event.startTime!! >= event.endTime)
             return
         val splitedEvents = event.splitWeekViewEvents()
         for (splitedEvent in splitedEvents) {

@@ -14,6 +14,9 @@ import java.util.*
  * Website: http://alamkanak.github.io
  */
 open class BasicActivity : BaseActivity() {
+    var uniqueId: Long = 0
+    fun getUniqueId(): String = uniqueId++.toString()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +43,7 @@ open class BasicActivity : BaseActivity() {
         var endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR, 1)
         endTime.set(Calendar.MONTH, newMonth - 1)
-        var event = WeekViewEvent("First", getEventTitle(startTime,endTime), startTime, endTime)
+        var event = WeekViewEvent("First", getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_01)
         events.add(event)
 
@@ -65,7 +68,7 @@ open class BasicActivity : BaseActivity() {
         endTime.set(Calendar.HOUR_OF_DAY, 4)
         endTime.set(Calendar.MINUTE, 30)
         endTime.set(Calendar.MONTH, newMonth - 1)
-        event = WeekViewEvent("Second", getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent("Second", getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_05)
         events.add(event)
 
@@ -77,7 +80,7 @@ open class BasicActivity : BaseActivity() {
         endTime = startTime.clone() as Calendar
         endTime.set(Calendar.HOUR_OF_DAY, 5)
         endTime.set(Calendar.MINUTE, 0)
-        event = WeekViewEvent(10, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_03)
         events.add(event)
 
@@ -89,7 +92,7 @@ open class BasicActivity : BaseActivity() {
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 2)
         endTime.set(Calendar.MONTH, newMonth - 1)
-        event = WeekViewEvent(2, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_02)
         events.add(event)
 
@@ -102,7 +105,7 @@ open class BasicActivity : BaseActivity() {
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 3)
         endTime.set(Calendar.MONTH, newMonth - 1)
-        event = WeekViewEvent(3, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_03)
         events.add(event)
 
@@ -114,7 +117,7 @@ open class BasicActivity : BaseActivity() {
         startTime.set(Calendar.YEAR, newYear)
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 3)
-        event = WeekViewEvent(4, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_04)
         events.add(event)
 
@@ -126,7 +129,7 @@ open class BasicActivity : BaseActivity() {
         startTime.set(Calendar.YEAR, newYear)
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 3)
-        event = WeekViewEvent(5, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_01)
         events.add(event)
 
@@ -138,7 +141,7 @@ open class BasicActivity : BaseActivity() {
         startTime.set(Calendar.YEAR, newYear)
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 3)
-        event = WeekViewEvent(5, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_02)
         events.add(event)
 
@@ -150,7 +153,7 @@ open class BasicActivity : BaseActivity() {
         startTime.set(Calendar.YEAR, newYear)
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 23)
-        event = WeekViewEvent(7, getEventTitle(startTime,endTime), null, startTime, endTime, true)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), null, startTime, endTime, true)
         event.color = resources.getColor(R.color.event_color_04)
         events.add(event)
 
@@ -163,7 +166,7 @@ open class BasicActivity : BaseActivity() {
         endTime = startTime.clone() as Calendar
         endTime.set(Calendar.DAY_OF_MONTH, 10)
         endTime.set(Calendar.HOUR_OF_DAY, 23)
-        event = WeekViewEvent(8, getEventTitle(startTime,endTime), null, startTime, endTime, true)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), null, startTime, endTime, true)
         event.color = resources.getColor(R.color.event_color_03)
         events.add(event)
 
@@ -178,7 +181,7 @@ open class BasicActivity : BaseActivity() {
         startTime.set(Calendar.YEAR, newYear)
         endTime = startTime.clone() as Calendar
         endTime.set(Calendar.DAY_OF_MONTH, 11)
-        event = WeekViewEvent(8, getEventTitle(startTime,endTime), null, startTime, endTime, true)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), null, startTime, endTime, true)
         event.color = resources.getColor(R.color.event_color_01)
 
         startTime = Calendar.getInstance()
@@ -190,10 +193,11 @@ open class BasicActivity : BaseActivity() {
         endTime.set(Calendar.HOUR_OF_DAY, 19)
         endTime.set(Calendar.MINUTE, 30)
         endTime.set(Calendar.MONTH, newMonth - 1)
-        event = WeekViewEvent(22, getEventTitle(startTime,endTime), startTime, endTime)
+        event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = resources.getColor(R.color.event_color_02)
         events.add(event)
 
         return events
     }
+
 }

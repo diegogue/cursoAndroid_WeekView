@@ -70,26 +70,6 @@ class WeekViewEvent {
     /**
      * Initializes the event for week view.
      *
-     * @param id          The id of the event.
-     * @param name        Name of the event.
-     * @param startYear   Year when the event starts.
-     * @param startMonth  Month when the event starts.
-     * @param startDay    Day when the event starts.
-     * @param startHour   Hour (in 24-hour format) when the event starts.
-     * @param startMinute Minute when the event starts.
-     * @param endYear     Year when the event ends.
-     * @param endMonth    Month when the event ends.
-     * @param endDay      Day when the event ends.
-     * @param endHour     Hour (in 24-hour format) when the event ends.
-     * @param endMinute   Minute when the event ends.
-     */
-    @Deprecated("")
-    constructor(id: Long, name: String, startYear: Int, startMonth: Int, startDay: Int, startHour: Int, startMinute: Int, endYear: Int, endMonth: Int, endDay: Int, endHour: Int, endMinute: Int) : this(id.toString(), name, startYear, startMonth, startDay, startHour, startMinute, endYear, endMonth, endDay, endHour, endMinute) {
-    }
-
-    /**
-     * Initializes the event for week view.
-     *
      * @param id        The id of the event as String.
      * @param name      Name of the event.
      * @param location  The location of the event.
@@ -111,39 +91,12 @@ class WeekViewEvent {
     /**
      * Initializes the event for week view.
      *
-     * @param id        The id of the event.
-     * @param name      Name of the event.
-     * @param location  The location of the event.
-     * @param startTime The time when the event starts.
-     * @param endTime   The time when the event ends.
-     * @param allDay    Is the event an all day event.
-     * @param shader    the Shader of the event rectangle
-     */
-    @Deprecated("")
-    @JvmOverloads constructor(id: Long, name: String, location: String?, startTime: Calendar, endTime: Calendar, allDay: Boolean = false, shader: Shader? = null) : this(id.toString(), name, location, startTime, endTime, allDay, shader) {
-    }
-
-    /**
-     * Initializes the event for week view.
-     *
      * @param id        The id of the event specified as String.
      * @param name      Name of the event.
      * @param startTime The time when the event starts.
      * @param endTime   The time when the event ends.
      */
     constructor(id: String, name: String, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime) {}
-
-    /**
-     * Initializes the event for week view.
-     *
-     * @param id        The id of the event.
-     * @param name      Name of the event.
-     * @param startTime The time when the event starts.
-     * @param endTime   The time when the event ends.
-     */
-    @Deprecated("")
-    constructor(id: Long, name: String, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime) {
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
