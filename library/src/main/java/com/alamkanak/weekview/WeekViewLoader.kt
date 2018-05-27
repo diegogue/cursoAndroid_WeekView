@@ -3,6 +3,7 @@ package com.alamkanak.weekview
 import java.util.*
 
 interface WeekViewLoader {
+
     /**
      * Convert a date into a double that will be used to reference when you're loading data.
      *

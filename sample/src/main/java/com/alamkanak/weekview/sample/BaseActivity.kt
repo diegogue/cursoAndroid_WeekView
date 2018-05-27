@@ -202,10 +202,10 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
 
     protected fun getEventTitle(cal: Calendar, endCal: Calendar? = null): String {
         val date = cal.time
-        if (endCal == null)
-            return "${shortDateFormat.format(date)} ${timeFormat.format(date)}"
+        return if (endCal == null)
+            "${shortDateFormat.format(date)} ${timeFormat.format(date)}"
         else
-            return "${shortDateFormat.format(date)} ${timeFormat.format(date)}..${timeFormat.format(endCal.time)}"
+            "${shortDateFormat.format(date)} ${timeFormat.format(date)}..${timeFormat.format(endCal.time)}"
 //        return String.format("%02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH))
     }
 
@@ -238,8 +238,8 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
     }
 
     companion object {
-        val TYPE_DAY_VIEW = 1
-        val TYPE_THREE_DAY_VIEW = 2
-        val TYPE_WEEK_VIEW = 3
+        const val TYPE_DAY_VIEW = 1
+        const val TYPE_THREE_DAY_VIEW = 2
+        const val TYPE_WEEK_VIEW = 3
     }
 }

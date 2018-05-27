@@ -17,6 +17,7 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.*
 import android.widget.OverScroller
+import com.alamkanak.weekview.MonthLoader.MonthChangeListener
 import com.alamkanak.weekview.WeekViewUtil.daysBetween
 import com.alamkanak.weekview.WeekViewUtil.getPassedMinutesInDay
 import com.alamkanak.weekview.WeekViewUtil.isSameDay
@@ -224,7 +225,11 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * are loaded in week view. For a MonthLoader events are loaded for every month. You can define
      * your custom event loader by extending WeekViewLoader.
      */
-    var weekViewLoader: WeekViewLoader? = null
+    val weekViewLoader: WeekViewLoader = PrefetchingWeekViewLoader(MonthLoader(object : MonthChangeListener {
+        override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
+            return monthChangeListener?.onMonthChange(newYear, newMonth)
+        }
+    }))
     var emptyViewClickListener: EmptyViewClickListener? = null
     var emptyViewLongPressListener: EmptyViewLongPressListener? = null
     var scrollListener: ScrollListener? = null
@@ -359,7 +364,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             // If the tap was on an event then trigger the callback.
             if (mEventRects != null && eventClickListener != null) {
                 val reversedEventRects = mEventRects
-                Collections.reverse(reversedEventRects!!)
+                reversedEventRects!!.reverse()
                 for (eventRect in reversedEventRects) {
                     if (newEventIdentifier != eventRect.event.identifier && eventRect.rectF != null && e.x > eventRect.rectF!!.left && e.x < eventRect.rectF!!.right && e.y > eventRect.rectF!!.top && e.y < eventRect.rectF!!.bottom) {
                         eventClickListener!!.onEventClick(eventRect.originalEvent, eventRect.rectF!!)
@@ -455,7 +460,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             if (eventLongPressListener != null && mEventRects != null) {
                 val reversedEventRects = mEventRects
-                Collections.reverse(reversedEventRects!!)
+                reversedEventRects!!.reverse()
                 for (event in reversedEventRects) {
                     if (event.rectF != null && e.x > event.rectF!!.left && e.x < event.rectF!!.right && e.y > event.rectF!!.top && e.y < event.rectF!!.bottom) {
                         eventLongPressListener!!.onEventLongPress(event.originalEvent, event.rectF!!)
@@ -491,8 +496,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private val xMinLimit: Float
         get() {
-            if (maxDate == null) {
-                return Integer.MIN_VALUE.toFloat()
+            return if (maxDate == null) {
+                Integer.MIN_VALUE.toFloat()
             } else {
                 val date = maxDate!!.clone() as Calendar
                 date.add(Calendar.DATE, 1 - realNumberOfVisibleDays)
@@ -500,7 +505,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     date.add(Calendar.DATE, 1)
                 }
 
-                return getXOriginForDate(date)
+                getXOriginForDate(date)
             }
         }
 
@@ -525,11 +530,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         get() = mCurrentOrigin.x + (mWidthPerDay + columnGap) * leftDaysWithGaps +
                 mHeaderColumnWidth
 
-    var monthChangeListener: MonthLoader.MonthChangeListener?
-        get() = if (weekViewLoader is MonthLoader) (weekViewLoader as MonthLoader).onMonthChangeListener else null
-        set(value) {
-            this.weekViewLoader = MonthLoader(value)
-        }
+    var monthChangeListener: MonthChangeListener? = null
 
     /**
      *  the interpreter which provides the text to show in the header column and the header row.
@@ -1404,11 +1405,35 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 continue
             }
 
-            // Get more events if necessary. We want to store the events 3 months beforehand. Get
-            // events only when it is the first iteration of the loop.
-            if (mEventRects == null || mRefreshEvents ||
-                    dayNumber == leftDaysWithGaps + 1 && mFetchedPeriod != weekViewLoader!!.toWeekViewPeriodIndex(day).toInt() &&
-                    Math.abs(mFetchedPeriod - weekViewLoader!!.toWeekViewPeriodIndex(day)) > 0.5) {
+            // Get more events if necessary.
+
+            // mFetchedPeriod: currently fetched period index
+            // mWeekViewLoader.toWeekViewPeriodIndex(day): index for the day we want to display
+            // fetchIndex = 1.0: end of period in the future reached
+            // fetchIndex = 0.0: end of period in the past reached
+            val fetchIndex = this.weekViewLoader.toWeekViewPeriodIndex(day) - mFetchedPeriod
+
+            // if we are using the PrefetchingWeekViewLoader class, we need to adjust the bounds
+            // so that we wait to fetch new data until we really need it
+            var upperBound = 1.0
+            var lowerBound = 0.0
+
+            if (this.weekViewLoader is PrefetchingWeekViewLoader) {
+                // the offset causes the onMonthChangeListener to be trigger when half of the
+                // last fetched period is passed
+
+                // example:
+                // if the prefetching period = 1, we load the current period, the next and the previous
+                // when half of the next/previous period is passed, the listener is triggered to fetch new data
+                val boundOffset = this.weekViewLoader.prefetchingPeriod - 0.5
+
+                upperBound = 1.0 + boundOffset
+                lowerBound = 0.0 - boundOffset
+            }
+
+            if ((mEventRects == null || mRefreshEvents ||
+                            dayNumber == leftDaysWithGaps + 1 && mFetchedPeriod != this.weekViewLoader.toWeekViewPeriodIndex(day).toInt() &&
+                            (fetchIndex >= upperBound || fetchIndex <= lowerBound))) {
                 getMoreEvents(day)
                 mRefreshEvents = false
             }
@@ -1824,7 +1849,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         if (mEvents == null)
             mEvents = ArrayList()
 
-        if (weekViewLoader == null && !isInEditMode)
+        if (this.weekViewLoader == null && !isInEditMode)
             throw IllegalStateException("You must provide a MonthChangeListener")
 
         // If a refresh was requested then reset some variables.
@@ -1833,18 +1858,16 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             mFetchedPeriod = -1
         }
 
-        if (weekViewLoader != null) {
-            val periodToFetch = weekViewLoader!!.toWeekViewPeriodIndex(day).toInt()
-            if (!isInEditMode && (mFetchedPeriod < 0 || mFetchedPeriod != periodToFetch || mRefreshEvents)) {
-                val newEvents = weekViewLoader!!.onLoad(periodToFetch)
+        val periodToFetch = this.weekViewLoader.toWeekViewPeriodIndex(day).toInt()
+        if (!isInEditMode && (mFetchedPeriod < 0 || mFetchedPeriod != periodToFetch || mRefreshEvents)) {
+            val newEvents = this.weekViewLoader.onLoad(periodToFetch)
 
-                // Clear events.
-                this.clearEvents()
-                cacheAndSortEvents(newEvents)
-                calculateHeaderHeight()
+            // Clear events.
+            this.clearEvents()
+            cacheAndSortEvents(newEvents)
+            calculateHeaderHeight()
 
-                mFetchedPeriod = periodToFetch
-            }
+            mFetchedPeriod = periodToFetch
         }
 
         // Prepare to calculate positions of each events.
@@ -2427,12 +2450,12 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             goToNearestOrigin()
 
             // Calculate focused point for scale action
-            if (isZoomFocusPointEnabled) {
+            mFocusedPointY = if (isZoomFocusPointEnabled) {
                 // Use fractional focus, percentage of height
-                mFocusedPointY = (height.toFloat() - mHeaderHeight - (weekDaysHeaderRowPadding * 2).toFloat() - spaceBelowAllDayEvents) * zoomFocusPoint
+                (height.toFloat() - mHeaderHeight - (weekDaysHeaderRowPadding * 2).toFloat() - spaceBelowAllDayEvents) * zoomFocusPoint
             } else {
                 // Grab focus
-                mFocusedPointY = detector.focusY
+                detector.focusY
             }
 
             return true

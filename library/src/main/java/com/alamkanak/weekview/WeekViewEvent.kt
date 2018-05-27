@@ -78,7 +78,7 @@ class WeekViewEvent {
      * @param allDay    Is the event an all day event.
      * @param shader    the Shader of the event rectangle
      */
-    @JvmOverloads constructor(id: String, name: String?, location: String?, startTime: Calendar, endTime: Calendar, allDay: Boolean = false, shader: Shader? = null) {
+    @JvmOverloads constructor(id: String?, name: String?, location: String?, startTime: Calendar, endTime: Calendar, allDay: Boolean = false, shader: Shader? = null) {
         this.identifier = id
         this.name = name
         this.location = location
@@ -96,7 +96,7 @@ class WeekViewEvent {
      * @param startTime The time when the event starts.
      * @param endTime   The time when the event ends.
      */
-    constructor(id: String, name: String, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime) {}
+    constructor(id: String?, name: String, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -110,6 +110,7 @@ class WeekViewEvent {
     override fun hashCode(): Int {
         return identifier!!.hashCode()
     }
+
 
     fun splitWeekViewEvents(): MutableList<WeekViewEvent> {
         //This function splits the WeekViewEvent in WeekViewEvents by day
@@ -155,5 +156,17 @@ class WeekViewEvent {
         }
 
         return events
+    }
+
+    override fun toString(): String {
+        if (isAllDay)
+            return "WeekViewEvent(identifier=$identifier, time=${WeekViewUtil.calendarToString(startTime, false)}, name=$name, location=$location, color=$color, isAllDay=$isAllDay, shader=$shader)"
+        val startTimeText = if (startTime == null) null
+        else startTime!!.get(Calendar.YEAR).toString() + "-" + (startTime!!.get(Calendar.MONTH) + 1).toString() + "-" + startTime!!.get(Calendar.DAY_OF_MONTH).toString() + " " +
+                startTime!!.get(Calendar.HOUR_OF_DAY).toString() + ":" + startTime!!.get(Calendar.MINUTE) + ":" + startTime!!.get(Calendar.SECOND) + "." + startTime!!.get(Calendar.MILLISECOND)
+        val endTimeText = if (endTime == null) null
+        else endTime!!.get(Calendar.YEAR).toString() + "-" + (endTime!!.get(Calendar.MONTH) + 1).toString() + "-" + endTime!!.get(Calendar.DAY_OF_MONTH).toString() + " " +
+                endTime!!.get(Calendar.HOUR_OF_DAY).toString() + ":" + endTime!!.get(Calendar.MINUTE) + ":" + endTime!!.get(Calendar.SECOND) + "." + endTime!!.get(Calendar.MILLISECOND)
+        return "WeekViewEvent(identifier=$identifier, startTime=$startTimeText, endTime=$endTimeText, name=$name, location=$location, color=$color, isAllDay=$isAllDay, shader=$shader)"
     }
 }

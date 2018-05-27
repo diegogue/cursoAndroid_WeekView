@@ -130,4 +130,19 @@ object WeekViewUtil {
             return SimpleDateFormat(defaultDateFormatPattern, Locale.getDefault())
         }
     }
+
+    @JvmStatic
+    fun calendarToString(cal: Calendar?, includeTime: Boolean = true): String {
+        if (cal == null)
+            return ""
+        val sb = StringBuilder()
+        with(cal) {
+            sb.append(get(Calendar.YEAR).toString()).append('-').append((get(Calendar.MONTH) + 1).toString())
+                    .append('-').append(get(Calendar.DAY_OF_MONTH).toString())
+            if (includeTime)
+                sb.append(get(Calendar.HOUR_OF_DAY).toString()).append(':').append(get(Calendar.MINUTE).toString()).append(':')
+                        .append(get(Calendar.SECOND).toString()).append('.').append(get(Calendar.MILLISECOND).toString())
+        }
+        return sb.toString()
+    }
 }
