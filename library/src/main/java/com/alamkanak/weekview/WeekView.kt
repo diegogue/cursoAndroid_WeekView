@@ -1849,9 +1849,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         if (mEvents == null)
             mEvents = ArrayList()
 
-        if (this.weekViewLoader == null && !isInEditMode)
-            throw IllegalStateException("You must provide a MonthChangeListener")
-
         // If a refresh was requested then reset some variables.
         if (mRefreshEvents) {
             this.clearEvents()
@@ -1910,9 +1907,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun cacheEvent(event: WeekViewEvent) {
         if (!event.isAllDay && event.startTime!! >= event.endTime)
             return
-        val splitedEvents = event.splitWeekViewEvents()
-        for (splitedEvent in splitedEvents) {
-            mEventRects!!.add(EventRect(splitedEvent, event, null))
+        val splitEvents = event.splitWeekViewEvents()
+        for (splitEvent in splitEvents) {
+            mEventRects!!.add(EventRect(splitEvent, event, null))
         }
 
         mEvents!!.add(event)

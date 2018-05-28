@@ -127,30 +127,31 @@ class WeekViewEvent {
             events.add(event1)
 
             // Add other days.
-            val otherDay = this.startTime!!.clone() as Calendar
-            otherDay.add(Calendar.DATE, 1)
-            while (!isSameDay(otherDay, this.endTime!!)) {
-                val overDay = otherDay.clone() as Calendar
-                overDay.set(Calendar.HOUR_OF_DAY, 0)
-                overDay.set(Calendar.MINUTE, 0)
-                val endOfOverDay = overDay.clone() as Calendar
-                endOfOverDay.set(Calendar.HOUR_OF_DAY, 23)
-                endOfOverDay.set(Calendar.MINUTE, 59)
-                val eventMore = WeekViewEvent(this.identifier!!, this.name, null, overDay, endOfOverDay, this.isAllDay)
-                eventMore.color = this.color
-                events.add(eventMore)
-
-                // Add next day.
+            if (!isSameDay(this.startTime!!, this.endTime!!)) {
+                val otherDay = this.startTime!!.clone() as Calendar
                 otherDay.add(Calendar.DATE, 1)
-            }
+                while (!isSameDay(otherDay, this.endTime!!)) {
+                    val overDay = otherDay.clone() as Calendar
+                    overDay.set(Calendar.HOUR_OF_DAY, 0)
+                    overDay.set(Calendar.MINUTE, 0)
+                    val endOfOverDay = overDay.clone() as Calendar
+                    endOfOverDay.set(Calendar.HOUR_OF_DAY, 23)
+                    endOfOverDay.set(Calendar.MINUTE, 59)
+                    val eventMore = WeekViewEvent(this.identifier!!, this.name, null, overDay, endOfOverDay, this.isAllDay)
+                    eventMore.color = this.color
+                    events.add(eventMore)
 
-            // Add last day.
-            val startTime = this.endTime!!.clone() as Calendar
-            startTime.set(Calendar.HOUR_OF_DAY, 0)
-            startTime.set(Calendar.MINUTE, 0)
-            val event2 = WeekViewEvent(this.identifier!!, this.name, this.location, startTime, this.endTime!!, this.isAllDay)
-            event2.color = this.color
-            events.add(event2)
+                    // Add next day.
+                    otherDay.add(Calendar.DATE, 1)
+                }
+                // Add last day.
+                val startTime = this.endTime!!.clone() as Calendar
+                startTime.set(Calendar.HOUR_OF_DAY, 0)
+                startTime.set(Calendar.MINUTE, 0)
+                val event2 = WeekViewEvent(this.identifier!!, this.name, this.location, startTime, this.endTime!!, this.isAllDay)
+                event2.color = this.color
+                events.add(event2)
+            }
         } else {
             events.add(this)
         }

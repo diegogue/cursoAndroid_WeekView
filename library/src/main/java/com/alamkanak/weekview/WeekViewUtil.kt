@@ -27,6 +27,8 @@ object WeekViewUtil {
      */
     @JvmStatic
     fun isSameDay(dateOne: Calendar, dateTwo: Calendar): Boolean {
+        if (dateOne === dateTwo)
+            return true
         return dateOne.get(Calendar.YEAR) == dateTwo.get(Calendar.YEAR) && dateOne.get(Calendar.DAY_OF_YEAR) == dateTwo.get(Calendar.DAY_OF_YEAR)
     }
 
