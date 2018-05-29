@@ -11,4 +11,5 @@
     <string name="drag_me">Drag Me</string>
     <string name="title_activity_whole_view_snap">Whole view snap</string>
     <string name="all_day">All day</string>
+    <string name="untitled_event">Untitled event</string>
 </resources>

@@ -59,7 +59,7 @@ open class WeekViewEvent {
      * @param startTime The time when the event starts.
      * @param endTime   The time when the event ends.
      */
-    constructor(id: String?, name: String, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime)
+    constructor(id: String?, name: String?, startTime: Calendar, endTime: Calendar) : this(id, name, null, startTime, endTime)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

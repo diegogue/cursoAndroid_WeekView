@@ -252,6 +252,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             field = value
             invalidate()
         }
+    var untitledEventText: String? = null
+        set(value) {
+            if (field == value)
+                return
+            field = value
+            invalidate()
+        }
 
     private val mGestureListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -1061,6 +1068,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             headerWeekDayTitleTextSize = a.getDimension(R.styleable.WeekView_headerWeekDayTitleTextSize, headerWeekDayTitleTextSize)
             headerWeekDaySubtitleTextSize = a.getDimension(R.styleable.WeekView_headerWeekDaySubtitleTextSize, headerWeekDaySubtitleTextSize)
             spaceBetweenHeaderWeekDayTitleAndSubtitle = a.getDimensionPixelSize(R.styleable.WeekView_spaceBetweenHeaderWeekDayTitleAndSubtitle, spaceBetweenHeaderWeekDayTitleAndSubtitle)
+            untitledEventText = a.getString(R.styleable.WeekView_untitledEventText) ?: untitledEventText
         } finally {
             a.recycle()
         }
@@ -1745,8 +1753,10 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
         // Prepare the name of the event.
         val bob = SpannableStringBuilder()
-        if (!TextUtils.isEmpty(event.name)) {
-            bob.append(event.name)
+        if (!TextUtils.isEmpty(event.name) || !TextUtils.isEmpty(untitledEventText)) {
+            if (!TextUtils.isEmpty(event.name))
+                bob.append(event.name)
+            else bob.append(untitledEventText)
             bob.setSpan(StyleSpan(android.graphics.Typeface.BOLD), 0, bob.length, 0)
         }
         // Prepare the location of the event.

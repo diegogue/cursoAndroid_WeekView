@@ -68,6 +68,6 @@
         <attr name="headerWeekDayTitleTextSize" format="dimension"/>
         <attr name="headerWeekDaySubtitleTextSize" format="dimension"/>
         <attr name="spaceBetweenHeaderWeekDayTitleAndSubtitle" format="dimension"/>
-
+        <attr name="untitledEventText" format="string"/>
     </declare-styleable>
 </resources>
