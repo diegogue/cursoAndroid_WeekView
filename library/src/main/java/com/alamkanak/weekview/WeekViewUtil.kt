@@ -6,9 +6,6 @@ import android.text.format.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Created by jesse on 6/02/2016.
- */
 object WeekViewUtil {
 
 
@@ -142,9 +139,20 @@ object WeekViewUtil {
             sb.append(get(Calendar.YEAR).toString()).append('-').append((get(Calendar.MONTH) + 1).toString())
                     .append('-').append(get(Calendar.DAY_OF_MONTH).toString())
             if (includeTime)
-                sb.append(get(Calendar.HOUR_OF_DAY).toString()).append(':').append(get(Calendar.MINUTE).toString()).append(':')
+                sb.append(" ").append(get(Calendar.HOUR_OF_DAY).toString()).append(':').append(get(Calendar.MINUTE).toString()).append(':')
                         .append(get(Calendar.SECOND).toString()).append('.').append(get(Calendar.MILLISECOND).toString())
         }
         return sb.toString()
+    }
+
+    @JvmStatic
+    fun resetTime(cal: Calendar) {
+        with(cal)
+        {
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
     }
 }

@@ -11,8 +11,6 @@ import java.util.*
 
 /**
  * An event model that was built for automatic serialization from json to object.
- * Created by Raquib-ul-Alam Kanak on 1/3/16.
- * Website: http://alamkanak.github.io
  */
 class Event {
 
@@ -66,7 +64,7 @@ class Event {
 
         // Create an week view event.
         val weekViewEvent = WeekViewEvent()
-        weekViewEvent.identifier = name
+        weekViewEvent.id = name
         weekViewEvent.name = name
         weekViewEvent.startTime = startTime
         weekViewEvent.endTime = endTime

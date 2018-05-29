@@ -1,5 +1,6 @@
 package com.alamkanak.weekview.sample
 
+import android.os.Bundle
 import android.widget.Toast
 import com.alamkanak.weekview.WeekViewEvent
 import com.alamkanak.weekview.sample.apiclient.Event
@@ -13,13 +14,15 @@ import java.util.*
 
 /**
  * An example of how events can be fetched from network and be displayed on the week view.
- * Created by Raquib-ul-Alam Kanak on 1/3/2014.
- * Website: http://alamkanak.github.io
  */
 class AsynchronousActivity : BaseActivity(), Callback<MutableList<Event>> {
 
     private val events = ArrayList<WeekViewEvent>()
-    internal var calledNetwork = false
+    private var calledNetwork = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        weekView.setLimitTime(0, 24)
+    }
 
     override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
 
@@ -36,11 +39,9 @@ class AsynchronousActivity : BaseActivity(), Callback<MutableList<Event>> {
 
         // Return only the events that matches newYear and newMonth.
         val matchedEvents = ArrayList<WeekViewEvent>()
-        for (event in events) {
-            if (eventMatches(event, newYear, newMonth)) {
+        for (event in events)
+            if (eventMatches(event, newYear, newMonth))
                 matchedEvents.add(event)
-            }
-        }
         return matchedEvents
     }
 
@@ -57,10 +58,8 @@ class AsynchronousActivity : BaseActivity(), Callback<MutableList<Event>> {
     }
 
     override fun success(events: MutableList<Event>, response: Response) {
-        this.events.clear()
-        for (event in events) {
+        for (event in events)
             this.events.add(event.toWeekViewEvent())
-        }
         weekView.notifyDataSetChanged()
     }
 

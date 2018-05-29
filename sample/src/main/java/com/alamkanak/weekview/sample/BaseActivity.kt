@@ -19,8 +19,6 @@ import java.util.*
 /**
  * This is a base activity which contains week view and all the codes necessary to initialize the
  * week view.
- * Created by Raquib-ul-Alam Kanak on 1/3/2014.
- * Website: http://alamkanak.github.io
  */
 abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, MonthLoader.MonthChangeListener, WeekView.EventLongPressListener, WeekView.EmptyViewLongPressListener, WeekView.EmptyViewClickListener, WeekView.AddEventClickListener, WeekView.DropListener {
     private var mWeekViewType = TYPE_THREE_DAY_VIEW
@@ -200,13 +198,19 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         }
     }
 
-    protected fun getEventTitle(cal: Calendar, endCal: Calendar? = null): String {
-        val date = cal.time
-        return if (endCal == null)
-            "${shortDateFormat.format(date)} ${timeFormat.format(date)}"
-        else
-            "${shortDateFormat.format(date)} ${timeFormat.format(date)}..${timeFormat.format(endCal.time)}"
-//        return String.format("%02d:%02d %s/%d", time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.MONTH) + 1, time.get(Calendar.DAY_OF_MONTH))
+    protected fun getEventTitle(startCal: Calendar, endCal: Calendar? = null, allDay: Boolean = false): String {
+        val startDate = startCal.time
+        val endDate = endCal?.time
+        return when {
+            allDay -> {
+                if (endCal == null || WeekViewUtil.isSameDay(startCal, endCal))
+                    shortDateFormat.format(startDate)
+                else "${shortDateFormat.format(startDate)}..${shortDateFormat.format(endDate)}"
+            }
+            endCal == null -> "${shortDateFormat.format(startDate)} ${timeFormat.format(startDate)}"
+            WeekViewUtil.isSameDay(startCal, endCal) -> "${shortDateFormat.format(startDate)} ${timeFormat.format(startDate)}..${timeFormat.format(endDate)}"
+            else -> "${shortDateFormat.format(startDate)} ${timeFormat.format(startDate)}..${shortDateFormat.format(endDate)} ${timeFormat.format(endDate)}"
+        }
     }
 
     override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {

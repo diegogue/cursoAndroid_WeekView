@@ -25,10 +25,6 @@ import com.alamkanak.weekview.WeekViewUtil.today
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Created by Raquib-ul-Alam Kanak on 7/21/2014.
- * Website: http://alamkanak.github.io/
- */
 class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
     //region fields and properties
     private var mHomeDate: Calendar? = null
@@ -366,7 +362,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 val reversedEventRects = mEventRects
                 reversedEventRects!!.reverse()
                 for (eventRect in reversedEventRects) {
-                    if (newEventIdentifier != eventRect.event.identifier && eventRect.rectF != null && e.x > eventRect.rectF!!.left && e.x < eventRect.rectF!!.right && e.y > eventRect.rectF!!.top && e.y < eventRect.rectF!!.bottom) {
+                    if (newEventIdentifier != eventRect.event.id && eventRect.rectF != null && e.x > eventRect.rectF!!.left && e.x < eventRect.rectF!!.right && e.y > eventRect.rectF!!.top && e.y < eventRect.rectF!!.bottom) {
                         eventClickListener!!.onEventClick(eventRect.originalEvent, eventRect.rectF!!)
                         playSoundEffect(SoundEffectConstants.CLICK)
                         return super.onSingleTapConfirmed(e)
@@ -433,11 +429,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         val right = left + mWidthPerDay
 
                         // Add the new event if its bounds are valid
-                        if (left < right &&
-                                left < width &&
-                                top < height &&
-                                right > mHeaderColumnWidth &&
-                                bottom > 0) {
+                        if (left < right && left < width && top < height && right > mHeaderColumnWidth && bottom > 0) {
                             val dayRectF = RectF(left, top, right, bottom - mCurrentOrigin.y)
                             newEvent.color = newEventColor
                             mNewEventRect = EventRect(newEvent, newEvent, dayRectF)
@@ -1672,7 +1664,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         if (mEventRects!![i].event.startTime!!.get(Calendar.HOUR_OF_DAY) < mMinTime)
                             topToUse = hourHeight * getPassedMinutesInDay(mMinTime, 0) / 60 + eventsTop
 
-                        if (newEventIdentifier != mEventRects!![i].event.identifier)
+                        if (newEventIdentifier != mEventRects!![i].event.id)
                             drawEventTitle(mEventRects!![i].event, mEventRects!![i].rectF!!, canvas, topToUse, left)
                         else
                             drawEmptyImage(mEventRects!![i].event, mEventRects!![i].rectF!!, canvas, topToUse, left)
@@ -1774,7 +1766,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 var availableLineCount = availableHeight / lineHeight
                 do {
                     // Ellipsize text to fit into event rect.
-                    if (newEventIdentifier != event.identifier)
+                    if (newEventIdentifier != event.id)
                         textLayout = StaticLayout(TextUtils.ellipsize(bob, mEventTextPaint, (availableLineCount * availableWidth).toFloat(), TextUtils.TruncateAt.END), mEventTextPaint, (rect.right - originalLeft - (eventPadding * 2).toFloat()).toInt(), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0f, false)
 
                     // Reduce line count.
@@ -1812,7 +1804,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * stored in "originalEvent". But the event that corresponds to rectangle the rectangle
      * instance will be stored in "event".
      */
-    private inner class EventRect
     /**
      * Create a new instance of event rect. An EventRect is actually the rectangle that is drawn
      * on the calendar for a given event. There may be more than one rectangle for a single
@@ -1825,11 +1816,15 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param originalEvent The original event that was passed by the user.
      * @param rectF         The rectangle.
      */
-    (var event: WeekViewEvent, var originalEvent: WeekViewEvent, var rectF: RectF?) {
+    private inner class EventRect(var event: WeekViewEvent, var originalEvent: WeekViewEvent, var rectF: RectF?) {
         var left: Float = 0f
         var width: Float = 0f
         var top: Float = 0f
         var bottom: Float = 0f
+        override fun toString(): String {
+            return "EventRect(left=$left, width=$width, top=$top, bottom=$bottom, rectF=$rectF, event=$event, originalEvent=$originalEvent)"
+        }
+
     }
 
 
@@ -1960,7 +1955,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             outerLoop@ for (collisionGroup in collisionGroups) {
                 for (groupEvent in collisionGroup) {
-                    if (isEventsCollide(groupEvent.event, eventRect.event) && groupEvent.event.isAllDay == eventRect.event.isAllDay) {
+                    if (isEventsCollide(groupEvent.event, eventRect.event)) { //&& groupEvent.event.isAllDay == eventRect.event.isAllDay) {
                         collisionGroup.add(eventRect)
                         isPlaced = true
                         break@outerLoop
@@ -2045,13 +2040,15 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @return true if the events overlap.
      */
     private fun isEventsCollide(event1: WeekViewEvent, event2: WeekViewEvent): Boolean {
+        if (event1.isAllDay != event2.isAllDay)
+            return false
         val start1 = event1.startTime!!.timeInMillis
-        val end1 = event1.endTime!!.timeInMillis
         val start2 = event2.startTime!!.timeInMillis
+        val end1 = event1.endTime!!.timeInMillis
         val end2 = event2.endTime!!.timeInMillis
-
+        if (event1.isAllDay)
+            return !(start1 > end2 || end1 < start2)
         val minOverlappingMillis = (minOverlappingMinutes * 60 * 1000).toLong()
-
         return !(start1 + minOverlappingMillis >= end2 || end1 <= start2 + minOverlappingMillis)
     }
 
