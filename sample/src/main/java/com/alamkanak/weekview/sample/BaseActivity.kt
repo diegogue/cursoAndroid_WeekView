@@ -84,16 +84,15 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         setupDateTimeInterpreter(false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        /*mWeekView.setShowDistinctPastFutureColor(true);
-        mWeekView.setShowDistinctWeekendColor(true);
-        mWeekView.setFutureBackgroundColor(Color.rgb(24,85,96));
-        mWeekView.setFutureWeekendBackgroundColor(Color.rgb(255,0,0));
-        mWeekView.setPastBackgroundColor(Color.rgb(85,189,200));
-        mWeekView.setPastWeekendBackgroundColor(Color.argb(50, 0,255,0));
-        */
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        mWeekView.setShowDistinctPastFutureColor(true);
+//        mWeekView.setShowDistinctWeekendColor(true);
+//        mWeekView.setFutureBackgroundColor(Color.rgb(24,85,96));
+//        mWeekView.setFutureWeekendBackgroundColor(Color.rgb(255,0,0));
+//        mWeekView.setPastBackgroundColor(Color.rgb(85,189,200));
+//        mWeekView.setPastWeekendBackgroundColor(Color.argb(50, 0,255,0));
+//    }
 
     private inner class DragTapListener : View.OnLongClickListener {
         override fun onLongClick(v: View): Boolean {

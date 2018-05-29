@@ -18,14 +18,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
 }
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':library')
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.squareup.retrofit:retrofit:1.9.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(':library')
+//    implementation 'com.github.AndroidDeveloperLB:Android-Week-View:ef94b8d256'
+//    implementation 'com.github.AndroidDeveloperLB:Android-Week-View:develop-SNAPSHOT'
+//    implementation 'com.github.AndroidDeveloperLB:Android-Week-View:develop-v2.3.0-gef94b8d-26'
+
 }
 repositories {
     mavenCentral()

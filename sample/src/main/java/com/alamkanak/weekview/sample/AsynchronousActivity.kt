@@ -54,7 +54,7 @@ class AsynchronousActivity : BaseActivity(), Callback<MutableList<Event>> {
      * @return True if the event matches the year and month.
      */
     private fun eventMatches(event: WeekViewEvent, year: Int, month: Int): Boolean {
-        return event.startTime!!.get(Calendar.YEAR) == year && event.startTime!!.get(Calendar.MONTH) == month - 1 || event.endTime!!.get(Calendar.YEAR) == year && event.endTime!!.get(Calendar.MONTH) == month - 1
+        return event.startTime.get(Calendar.YEAR) == year && event.startTime.get(Calendar.MONTH) == month - 1 || event.endTime.get(Calendar.YEAR) == year && event.endTime.get(Calendar.MONTH) == month - 1
     }
 
     override fun success(events: MutableList<Event>, response: Response) {

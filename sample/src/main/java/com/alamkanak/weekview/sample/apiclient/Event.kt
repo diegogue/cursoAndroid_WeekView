@@ -51,23 +51,23 @@ class Event {
 
         // Initialize start and end time.
         val now = Calendar.getInstance()
-        val startTime = now.clone() as Calendar
+        val startTime = Calendar.getInstance()
         startTime.timeInMillis = start.time
-        startTime.set(Calendar.YEAR, now.get(Calendar.YEAR))
-        startTime.set(Calendar.MONTH, now.get(Calendar.MONTH))
-        startTime.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        with(startTime) {
+            set(Calendar.YEAR, now.get(Calendar.YEAR))
+            set(Calendar.MONTH, now.get(Calendar.MONTH))
+            set(Calendar.DAY_OF_MONTH, dayOfMonth)
+        }
         val endTime = startTime.clone() as Calendar
         endTime.timeInMillis = end.time
-        endTime.set(Calendar.YEAR, startTime.get(Calendar.YEAR))
-        endTime.set(Calendar.MONTH, startTime.get(Calendar.MONTH))
-        endTime.set(Calendar.DAY_OF_MONTH, startTime.get(Calendar.DAY_OF_MONTH))
+        with(endTime) {
+            set(Calendar.YEAR, startTime.get(Calendar.YEAR))
+            set(Calendar.MONTH, startTime.get(Calendar.MONTH))
+            set(Calendar.DAY_OF_MONTH, startTime.get(Calendar.DAY_OF_MONTH))
+        }
 
         // Create an week view event.
-        val weekViewEvent = WeekViewEvent()
-        weekViewEvent.id = name
-        weekViewEvent.name = name
-        weekViewEvent.startTime = startTime
-        weekViewEvent.endTime = endTime
+        val weekViewEvent = WeekViewEvent(name, name, null, startTime, endTime)
         weekViewEvent.color = Color.parseColor(color)
 
         return weekViewEvent

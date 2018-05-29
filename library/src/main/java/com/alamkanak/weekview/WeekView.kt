@@ -377,7 +377,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             // If the tap was on add new Event space, then trigger the callback
             if (addEventClickListener != null && mNewEventRect != null && mNewEventRect!!.rectF != null &&
                     mNewEventRect!!.rectF!!.contains(x, y)) {
-                addEventClickListener!!.onAddEventClicked(mNewEventRect!!.event.startTime!!, mNewEventRect!!.event.endTime!!)
+                addEventClickListener!!.onAddEventClicked(mNewEventRect!!.event.startTime, mNewEventRect!!.event.endTime)
                 return super.onSingleTapConfirmed(e)
             }
 
@@ -1242,7 +1242,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             for (dayNumber in 0 until realNumberOfVisibleDays) {
                 for (i in mEventRects!!.indices) {
                     val event = mEventRects!![i].event
-                    if (isSameDay(event.startTime!!, day) && event.isAllDay) {
+                    if (isSameDay(event.startTime, day) && event.isAllDay) {
                         containsAllDayEvent = true
                         break
                     }
@@ -1614,13 +1614,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
             for (eventRect in mEventRects!!) {
                 for (date in dates) {
-                    if (isSameDay(eventRect.event.startTime!!, date) && !eventRect.event.isAllDay) {
+                    if (isSameDay(eventRect.event.startTime, date) && !eventRect.event.isAllDay) {
 
-                        if (startTime == null || getPassedMinutesInDay(startTime) > getPassedMinutesInDay(eventRect.event.startTime!!)) {
+                        if (startTime == null || getPassedMinutesInDay(startTime) > getPassedMinutesInDay(eventRect.event.startTime)) {
                             startTime = eventRect.event.startTime
                         }
 
-                        if (endTime == null || getPassedMinutesInDay(endTime) < getPassedMinutesInDay(eventRect.event.endTime!!)) {
+                        if (endTime == null || getPassedMinutesInDay(endTime) < getPassedMinutesInDay(eventRect.event.endTime)) {
                             endTime = eventRect.event.endTime
                         }
                     }
@@ -1645,7 +1645,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun drawEvents(date: Calendar, startFromPixel: Float, canvas: Canvas) {
         if (mEventRects != null && mEventRects!!.size > 0) {
             for (i in mEventRects!!.indices) {
-                if (isSameDay(mEventRects!![i].event.startTime!!, date) && !mEventRects!![i].event.isAllDay) {
+                if (isSameDay(mEventRects!![i].event.startTime, date) && !mEventRects!![i].event.isAllDay) {
                     val top = hourHeight * mEventRects!![i].top / 60 + eventsTop
                     val bottom = hourHeight * mEventRects!![i].bottom / 60 + eventsTop
 
@@ -1668,7 +1668,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         mEventBackgroundPaint.shader = mEventRects!![i].event.shader
                         canvas.drawRoundRect(mEventRects!![i].rectF!!, eventCornerRadius.toFloat(), eventCornerRadius.toFloat(), mEventBackgroundPaint)
                         var topToUse = top
-                        if (mEventRects!![i].event.startTime!!.get(Calendar.HOUR_OF_DAY) < mMinTime)
+                        if (mEventRects!![i].event.startTime.get(Calendar.HOUR_OF_DAY) < mMinTime)
                             topToUse = hourHeight * getPassedMinutesInDay(mMinTime, 0) / 60 + eventsTop
 
                         if (newEventIdentifier != mEventRects!![i].event.id)
@@ -1695,7 +1695,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             val headerTitleAndSubtitleTextHeight = mHeaderWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) mHeaderWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
 
             for (i in mEventRects!!.indices) {
-                if (isSameDay(mEventRects!![i].event.startTime!!, date) && mEventRects!![i].event.isAllDay) {
+                if (isSameDay(mEventRects!![i].event.startTime, date) && mEventRects!![i].event.isAllDay) {
 
                     // Calculate top.
                     val weekDaysHeight = headerTitleAndSubtitleTextHeight + weekDaysHeaderRowPadding * 2
@@ -1885,7 +1885,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             while (i < tempEvents.size) {
                 // Collect all other events for same day.
                 val eventRect2 = tempEvents[i]
-                if (isSameDay(eventRect1.event.startTime!!, eventRect2.event.startTime!!)) {
+                if (isSameDay(eventRect1.event.startTime, eventRect2.event.startTime)) {
                     tempEvents.removeAt(i)
                     eventRects.add(eventRect2)
                 } else {
@@ -1907,7 +1907,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param event The event to cache.
      */
     private fun cacheEvent(event: WeekViewEvent) {
-        if (!event.isAllDay && event.startTime!! >= event.endTime)
+        if (!event.isAllDay && event.startTime >= event.endTime)
             return
         val splitEvents = event.splitWeekViewEvents()
         for (splitEvent in splitEvents) {
@@ -1936,12 +1936,12 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      */
     private fun sortEventRects(eventRects: MutableList<EventRect>?) {
         eventRects?.sortWith(Comparator { left, right ->
-            val start1 = left.event.startTime!!.timeInMillis
-            val start2 = right.event.startTime!!.timeInMillis
+            val start1 = left.event.startTime.timeInMillis
+            val start2 = right.event.startTime.timeInMillis
             var comparator = if (start1 > start2) 1 else if (start1 < start2) -1 else 0
             if (comparator == 0) {
-                val end1 = left.event.endTime!!.timeInMillis
-                val end2 = right.event.endTime!!.timeInMillis
+                val end1 = left.event.endTime.timeInMillis
+                val end2 = right.event.endTime.timeInMillis
                 comparator = if (end1 > end2) 1 else if (end1 < end2) -1 else 0
             }
             comparator
@@ -2026,8 +2026,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     eventRect.width = 1f / columns.size
                     eventRect.left = j / columns.size
                     if (!eventRect.event.isAllDay) {
-                        eventRect.top = getPassedMinutesInDay(eventRect.event.startTime!!).toFloat()
-                        eventRect.bottom = getPassedMinutesInDay(eventRect.event.endTime!!).toFloat()
+                        eventRect.top = getPassedMinutesInDay(eventRect.event.startTime).toFloat()
+                        eventRect.bottom = getPassedMinutesInDay(eventRect.event.endTime).toFloat()
                     } else {
                         eventRect.top = 0f
                         eventRect.bottom = allDayEventHeight.toFloat()
@@ -2049,10 +2049,10 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun isEventsCollide(event1: WeekViewEvent, event2: WeekViewEvent): Boolean {
         if (event1.isAllDay != event2.isAllDay)
             return false
-        val start1 = event1.startTime!!.timeInMillis
-        val start2 = event2.startTime!!.timeInMillis
-        val end1 = event1.endTime!!.timeInMillis
-        val end2 = event2.endTime!!.timeInMillis
+        val start1 = event1.startTime.timeInMillis
+        val start2 = event2.startTime.timeInMillis
+        val end1 = event1.endTime.timeInMillis
+        val end2 = event2.endTime.timeInMillis
         if (event1.isAllDay)
             return !(start1 > end2 || end1 < start2)
         val minOverlappingMillis = (minOverlappingMinutes * 60 * 1000).toLong()
