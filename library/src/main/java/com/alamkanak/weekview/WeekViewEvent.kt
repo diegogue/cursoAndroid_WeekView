@@ -6,7 +6,7 @@ import com.alamkanak.weekview.WeekViewUtil.isSameDay
 import java.util.*
 
 open class WeekViewEvent {
-    var id: String? = null
+    val id: String?
     val startTime: Calendar
     val endTime: Calendar
     var name: String? = null

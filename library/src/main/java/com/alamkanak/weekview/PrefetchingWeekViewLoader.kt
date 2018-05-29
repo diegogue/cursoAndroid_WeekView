@@ -14,8 +14,7 @@ import java.util.*
  * @param prefetchingPeriod The amount of periods to be fetched before and after the
  * current period. Must be 1 or greater.
  */
-class PrefetchingWeekViewLoader(weekViewLoader: WeekViewLoader, @IntRange(from = 1L) val prefetchingPeriod: Int = 1) : WeekViewLoader {
-    private var mWeekViewLoader: WeekViewLoader? = weekViewLoader
+class PrefetchingWeekViewLoader(val weekViewLoader: WeekViewLoader, @IntRange(from = 1L) val prefetchingPeriod: Int = 1) : WeekViewLoader {
 
     init {
         if (prefetchingPeriod < 1)
@@ -24,16 +23,23 @@ class PrefetchingWeekViewLoader(weekViewLoader: WeekViewLoader, @IntRange(from =
 
     override fun onLoad(periodIndex: Int): MutableList<WeekViewEvent>? {
         // fetch the current period
-        val events = ArrayList(mWeekViewLoader!!.onLoad(periodIndex)!!)
+        var loadedEvents = weekViewLoader.onLoad(periodIndex)
+        val events = ArrayList<WeekViewEvent>()
+        if (loadedEvents != null)
+            events.addAll(loadedEvents)
         // fetch periods before/after
         for (i in 1..this.prefetchingPeriod) {
-            events.addAll(mWeekViewLoader!!.onLoad(periodIndex - i)!!)
-            events.addAll(mWeekViewLoader!!.onLoad(periodIndex + i)!!)
+            loadedEvents = weekViewLoader.onLoad(periodIndex - i)
+            if (loadedEvents != null)
+                events.addAll(loadedEvents)
+            loadedEvents = weekViewLoader.onLoad(periodIndex + i)
+            if (loadedEvents != null)
+                events.addAll(loadedEvents)
         }
         // return list of all events together
         return events
     }
 
-    override fun toWeekViewPeriodIndex(instance: Calendar) = mWeekViewLoader!!.toWeekViewPeriodIndex(instance)
+    override fun toWeekViewPeriodIndex(instance: Calendar) = weekViewLoader.toWeekViewPeriodIndex(instance)
 
 }
