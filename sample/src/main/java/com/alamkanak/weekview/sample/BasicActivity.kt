@@ -1,9 +1,7 @@
 package com.alamkanak.weekview.sample
 
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.res.ResourcesCompat
-import com.alamkanak.weekview.TextColorPicker
 import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
 import java.util.*
@@ -20,13 +18,6 @@ open class BasicActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         weekView.typeface = ResourcesCompat.getFont(this, R.font.lato)
-        weekView.textColorPicker = object : TextColorPicker {
-            override fun getTextColor(event: WeekViewEvent): Int {
-                val color = event.color
-                val a = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
-                return if (a < 0.2) Color.BLACK else Color.WHITE
-            }
-        }
     }
 
     override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {

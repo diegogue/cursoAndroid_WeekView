@@ -985,6 +985,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     init {
+        textColorPicker = object : TextColorPicker {
+            override fun getTextColor(event: WeekViewEvent): Int {
+                val color = event.color
+                val a = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255
+                return if (a < 0.2) Color.BLACK else Color.WHITE
+            }
+        }
         refreshRunnable = object : Runnable {
             override fun run() {
                 invalidate()
