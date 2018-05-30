@@ -20,7 +20,7 @@ open class BasicActivity : BaseActivity() {
         weekView.typeface = ResourcesCompat.getFont(this, R.font.lato)
     }
 
-    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<out WeekViewEvent>? {
         // Populate the week view with some events.
         val events = ArrayList<WeekViewEvent>()
 

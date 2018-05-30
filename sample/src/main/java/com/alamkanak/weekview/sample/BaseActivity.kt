@@ -228,7 +228,7 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         Toast.makeText(this, "Empty view" + " clicked: " + getEventTitle(date), Toast.LENGTH_SHORT).show()
     }
 
-    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
+    override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<out WeekViewEvent>? {
         return null
     }
 

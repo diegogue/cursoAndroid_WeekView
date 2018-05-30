@@ -222,7 +222,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * your custom event loader by extending WeekViewLoader.
      */
     val weekViewLoader: WeekViewLoader = PrefetchingWeekViewLoader(MonthLoader(object : MonthChangeListener {
-        override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<WeekViewEvent>? {
+        override fun onMonthChange(newYear: Int, newMonth: Int): MutableList<out WeekViewEvent>? {
             return monthChangeListener?.onMonthChange(newYear, newMonth)
         }
     }))
@@ -1932,7 +1932,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      *
      * @param events The events to be cached and sorted.
      */
-    private fun cacheAndSortEvents(events: MutableList<WeekViewEvent>?) {
+    private fun cacheAndSortEvents(events: MutableList<out WeekViewEvent>?) {
         if (events != null)
             for (event in events)
                 cacheEvent(event)
