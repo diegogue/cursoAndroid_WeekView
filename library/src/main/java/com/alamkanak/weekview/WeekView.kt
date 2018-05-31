@@ -13,6 +13,7 @@ import android.text.*
 import android.text.format.DateFormat
 import android.text.style.StyleSpan
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.OverScroller
@@ -108,7 +109,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private var mWidthPerDay: Float = 0f
     private var mHeaderColumnWidth: Float = 0f
     private var mEventRects: MutableList<EventRect>? = null
-    private var mEvents: MutableList<WeekViewEvent>? = null
+    private val mEvents = ArrayList<WeekViewEvent>()
     private var mFetchedPeriod = -1 // the middle period the calendar has fetched.
     private var mRefreshEvents = false
     private var mCurrentFlingDirection = Direction.NONE
@@ -119,11 +120,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      */
     var firstVisibleDay: Calendar? = null
         private set
-    /**
-     *  the last visible day in the week view.
-     */
-    var lastVisibleDay: Calendar? = null
-        private set
+
     private var mMinimumFlingVelocity = 0
     private var mScaledTouchSlop = 0
     private var mNewEventRect: EventRect? = null
@@ -362,24 +359,17 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             return true
         }
 
-
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-
             // If the tap was on an event then trigger the callback.
-            if (mEventRects != null && eventClickListener != null) {
-                val reversedEventRects = mEventRects
-                reversedEventRects!!.reverse()
-                for (eventRect in reversedEventRects) {
+            if (mEventRects != null && eventClickListener != null)
+                for (eventRect in mEventRects!!) {
                     if (newEventIdentifier != eventRect.event.id && eventRect.rectF != null && e.x > eventRect.rectF!!.left && e.x < eventRect.rectF!!.right && e.y > eventRect.rectF!!.top && e.y < eventRect.rectF!!.bottom) {
                         eventClickListener!!.onEventClick(eventRect.originalEvent, eventRect.rectF!!)
                         playSoundEffect(SoundEffectConstants.CLICK)
                         return super.onSingleTapConfirmed(e)
                     }
                 }
-            }
-
             val xOffset = xStartPixel
-
             val x = e.x - xOffset
             val y = e.y - mCurrentOrigin.y
             // If the tap was on add new Event space, then trigger the callback
@@ -388,23 +378,18 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                 addEventClickListener!!.onAddEventClicked(mNewEventRect!!.event.startTime, mNewEventRect!!.event.endTime)
                 return super.onSingleTapConfirmed(e)
             }
-
             // If the tap was on an empty space, then trigger the callback.
             if ((emptyViewClickListener != null || addEventClickListener != null) && e.x > mHeaderColumnWidth && e.y > headerHeight + weekDaysHeaderRowTotalPadding + spaceBelowAllDayEvents) {
                 val selectedTime = getTimeFromPoint(e.x, e.y)
-
                 if (selectedTime != null) {
-                    val tempEvents = ArrayList(mEvents!!)
+                    val tempEvents = ArrayList(mEvents)
                     if (mNewEventRect != null) {
                         tempEvents.remove(mNewEventRect!!.event)
                         mNewEventRect = null
                     }
-
                     playSoundEffect(SoundEffectConstants.CLICK)
-
                     if (emptyViewClickListener != null)
                         emptyViewClickListener!!.onEmptyViewClicked(selectedTime.clone() as Calendar)
-
                     if (addEventClickListener != null) {
                         //round selectedTime to resolution
                         selectedTime.add(Calendar.MINUTE, -(newEventLengthInMinutes / 2))
@@ -416,9 +401,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         val unroundedMinutes = selectedTime.get(Calendar.MINUTE)
                         val mod = unroundedMinutes % newEventTimeResolutionInMinutes
                         selectedTime.add(Calendar.MINUTE, if (mod < Math.ceil((newEventTimeResolutionInMinutes / 2).toDouble())) -mod else newEventTimeResolutionInMinutes - mod)
-
                         val endTime = selectedTime.clone() as Calendar
-
                         //Minus one to ensure it is the same day and not midnight (next day)
                         val maxMinutes = (mMaxTime - selectedTime.get(Calendar.HOUR_OF_DAY)) * 60 - selectedTime.get(Calendar.MINUTE) - 1
                         endTime.add(Calendar.MINUTE, Math.min(maxMinutes, newEventLengthInMinutes))
@@ -426,31 +409,25 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         if (maxMinutes < newEventLengthInMinutes) {
                             selectedTime.add(Calendar.MINUTE, maxMinutes - newEventLengthInMinutes)
                         }
-
                         val newEvent = WeekViewEvent(newEventIdentifier!!, "", null, selectedTime, endTime)
-
                         val top = hourHeight * getPassedMinutesInDay(selectedTime) / 60 + eventsTop
                         val bottom = hourHeight * getPassedMinutesInDay(endTime) / 60 + eventsTop
-
                         // Calculate left and right.
                         val left = mWidthPerDay * WeekViewUtil.daysBetween(firstVisibleDay!!, selectedTime)
                         val right = left + mWidthPerDay
-
                         // Add the new event if its bounds are valid
                         if (left < right && left < width && top < height && right > mHeaderColumnWidth && bottom > 0) {
                             val dayRectF = RectF(left, top, right, bottom - mCurrentOrigin.y)
                             newEvent.color = newEventColor
                             mNewEventRect = EventRect(newEvent, newEvent, dayRectF)
                             tempEvents.add(newEvent)
-                            this@WeekView.clearEvents()
+                            clearEvents()
                             cacheAndSortEvents(tempEvents)
                             computePositionOfEvents(mEventRects!!)
                             invalidate()
                         }
-
                     }
                 }
-
             }
             return super.onSingleTapConfirmed(e)
         }
@@ -458,9 +435,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         override fun onLongPress(e: MotionEvent) {
             super.onLongPress(e)
             if (eventLongPressListener != null && mEventRects != null) {
-                val reversedEventRects = mEventRects
-                reversedEventRects!!.reverse()
-                for (event in reversedEventRects) {
+                for (event in mEventRects!!) {
                     if (event.rectF != null && e.x > event.rectF!!.left && e.x < event.rectF!!.right && e.y > event.rectF!!.top && e.y < event.rectF!!.bottom) {
                         eventLongPressListener!!.onEventLongPress(event.originalEvent, event.rectF!!)
                         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
@@ -996,6 +971,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         private set(value) {}
 
     private val timeChangedBroadcastReceiver: TimeChangedBroadcastReceiver
+    private var today: Calendar = WeekViewUtil.today()
+    private val containsAllDayEventCache = HashMap<Pair<SimpleDate, Int>, Boolean>()
 
     //endregion fields and properties
 
@@ -1006,6 +983,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     init {
         timeChangedBroadcastReceiver = object : TimeChangedBroadcastReceiver() {
             override fun onTimeChanged() {
+                this@WeekView.today = WeekViewUtil.today()
                 invalidate()
             }
         }
@@ -1094,7 +1072,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mHourSeparatorPaint.style = Paint.Style.STROKE
         mHeaderWeekDayTitleTodayTextPaint.textAlign = Paint.Align.CENTER
         mHeaderWeekDaySubtitleTodayTextPaint.textAlign = Paint.Align.CENTER
-
         init()
     }
 
@@ -1255,20 +1232,26 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
 
     private fun calculateHeaderHeight() {
         //Make sure the header is the right size (depends on AllDay events)
-        containsAllDayEvent = false
         if (mEventRects != null && mEventRects!!.size > 0) {
-            val day = firstVisibleDay!!.clone() as Calendar
-            for (dayNumber in 0 until realNumberOfVisibleDays) {
-                for (i in mEventRects!!.indices) {
-                    val event = mEventRects!![i].event
-                    if (isSameDay(event.startTime, day) && event.isAllDay) {
-                        containsAllDayEvent = true
-                        break
+            val cacheKey = Pair(SimpleDate(firstVisibleDay!!), realNumberOfVisibleDays)
+            val cachedResult = containsAllDayEventCache[cacheKey]
+            if (cachedResult != null)
+                containsAllDayEvent = cachedResult
+            else {
+                containsAllDayEvent = false
+                val day = firstVisibleDay!!.clone() as Calendar
+                outerLoop@
+                for (dayNumber in 0 until realNumberOfVisibleDays) {
+                    for (i in mEventRects!!.indices) {
+                        val event = mEventRects!![i].event
+                        if (isSameDay(event.startTime, day) && event.isAllDay) {
+                            containsAllDayEvent = true
+                            break@outerLoop
+                        }
                     }
+                    day.add(Calendar.DATE, 1)
                 }
-                if (containsAllDayEvent)
-                    break
-                day.add(Calendar.DATE, 1)
+                containsAllDayEventCache[cacheKey] = containsAllDayEvent
             }
         }
         headerHeight = if (containsAllDayEvent) {
@@ -1291,7 +1274,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             val timeSpacing: Float
             val minutes: Int
             val hour: Int
-
             val timesPerHour = 60.0f / timeColumnResolution
 
             timeSpacing = hourHeight / timesPerHour
@@ -1317,8 +1299,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mWidthPerDay = width.toFloat() - mHeaderColumnWidth - (columnGap * (realNumberOfVisibleDays - 1)).toFloat()
         mWidthPerDay /= realNumberOfVisibleDays
         calculateHeaderHeight() //Make sure the header is the right size (depends on AllDay events)
-
-        val today = today()
 
         if (mAreDimensionsInvalid) {
             mEffectiveMinHourHeight = Math.max(minHourHeight, ((height.toFloat() - headerHeight - weekDaysHeaderRowTotalPadding - spaceBelowAllDayEvents) / (mMaxTime - mMinTime)).toInt())
@@ -1358,14 +1338,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         }
 
         // If the new mCurrentOrigin.y is invalid, make it valid.
-        if (mCurrentOrigin.y < height.toFloat() - (hourHeight * (mMaxTime - mMinTime)).toFloat() - headerHeight - weekDaysHeaderRowTotalPadding - spaceBelowAllDayEvents - mTimeTextHeight / 2)
-            mCurrentOrigin.y = height.toFloat() - (hourHeight * (mMaxTime - mMinTime)).toFloat() - headerHeight - weekDaysHeaderRowTotalPadding - spaceBelowAllDayEvents - mTimeTextHeight / 2
-
-        // Don't put an "else if" because it will trigger a glitch when completely zoomed out and
-        // scrolling vertically.
-        if (mCurrentOrigin.y > 0) {
-            mCurrentOrigin.y = 0f
-        }
+        mCurrentOrigin.y = Math.min(0f, Math.max(mCurrentOrigin.y,
+                height.toFloat() - (hourHeight * (mMaxTime - mMinTime)).toFloat() - headerHeight - weekDaysHeaderRowTotalPadding - spaceBelowAllDayEvents - mTimeTextHeight / 2))
 
         val leftDaysWithGaps = leftDaysWithGaps
         // Consider scroll offset.
@@ -1373,19 +1347,16 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         var startPixel = startFromPixel
 
         // Prepare to iterate for each hour to draw the hour lines.
-        var lineCount = ((height.toFloat() - headerHeight - weekDaysHeaderRowTotalPadding -
-                spaceBelowAllDayEvents) / hourHeight).toInt() + 1
-
+        var lineCount = ((height.toFloat() - headerHeight - weekDaysHeaderRowTotalPadding - spaceBelowAllDayEvents) / hourHeight).toInt() + 1
         lineCount *= (realNumberOfVisibleDays + 1)
 
         val hourLines = FloatArray(lineCount * 4)
 
         // Clear the cache for event rectangles.
-        if (mEventRects != null) {
-            for (eventRect in mEventRects!!) {
+        if (mEventRects != null)
+            for (eventRect in mEventRects!!)
                 eventRect.rectF = null
-            }
-        }
+
         canvas.save()
 
         // Clip to paint events only.
@@ -1396,8 +1367,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         val oldFirstVisibleDay = firstVisibleDay
         firstVisibleDay = mHomeDate!!.clone() as Calendar
         firstVisibleDay!!.add(Calendar.DATE, -Math.round(mCurrentOrigin.x / (mWidthPerDay + columnGap)))
-        if (firstVisibleDay != oldFirstVisibleDay && scrollListener != null) {
-            scrollListener!!.onFirstVisibleDayChanged(firstVisibleDay!!, oldFirstVisibleDay)
+
+        if (oldFirstVisibleDay == null || !WeekViewUtil.isSameDay(firstVisibleDay!!, oldFirstVisibleDay)) {
+            scrollListener?.onFirstVisibleDayChanged(firstVisibleDay!!, oldFirstVisibleDay)
         }
 
         if (autoLimitTime) {
@@ -1409,114 +1381,115 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             }
             limitEventTime(days)
         }
-
-        for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays + 1) {
-            // Check if the day is today.
+        run {
             val day = mHomeDate!!.clone() as Calendar
-            lastVisibleDay = day.clone() as Calendar
-            day.add(Calendar.DATE, dayNumber - 1)
-            lastVisibleDay!!.add(Calendar.DATE, dayNumber - 2)
-            val isToday = isSameDay(day, today)
+            day.add(Calendar.DATE, leftDaysWithGaps)
 
-            // Don't draw days which are outside requested range
-            if (!dateIsValid(day)) {
-                continue
-            }
+            for (dayNumber in leftDaysWithGaps + 1..leftDaysWithGaps + realNumberOfVisibleDays + 1) {
+                // Check if the day is today.
+                val isToday = isSameDay(day, today)
 
-            // Get more events if necessary.
+                // Don't draw days which are outside requested range
+                if (!dateIsValid(day))
+                    continue
 
-            // mFetchedPeriod: currently fetched period index
-            // mWeekViewLoader.toWeekViewPeriodIndex(day): index for the day we want to display
-            // fetchIndex = 1.0: end of period in the future reached
-            // fetchIndex = 0.0: end of period in the past reached
-            val fetchIndex = this.weekViewLoader.toWeekViewPeriodIndex(day) - mFetchedPeriod
+                // Get more events if necessary.
 
-            // if we are using the PrefetchingWeekViewLoader class, we need to adjust the bounds
-            // so that we wait to fetch new data until we really need it
-            var upperBound = 1.0
-            var lowerBound = 0.0
+                // mFetchedPeriod: currently fetched period index
+                // mWeekViewLoader.toWeekViewPeriodIndex(day): index for the day we want to display
+                // fetchIndex = 1.0: end of period in the future reached
+                // fetchIndex = 0.0: end of period in the past reached
+                val fetchIndex = this.weekViewLoader.toWeekViewPeriodIndex(day) - mFetchedPeriod
 
-            if (this.weekViewLoader is PrefetchingWeekViewLoader) {
-                // the offset causes the onMonthChangeListener to be trigger when half of the
-                // last fetched period is passed
+                // if we are using the PrefetchingWeekViewLoader class, we need to adjust the bounds
+                // so that we wait to fetch new data until we really need it
+                var upperBound = 1.0
+                var lowerBound = 0.0
 
-                // example:
-                // if the prefetching period = 1, we load the current period, the next and the previous
-                // when half of the next/previous period is passed, the listener is triggered to fetch new data
-                val boundOffset = this.weekViewLoader.prefetchingPeriod - 0.5
+                if (this.weekViewLoader is PrefetchingWeekViewLoader) {
+                    // the offset causes the onMonthChangeListener to be trigger when half of the
+                    // last fetched period is passed
 
-                upperBound = 1.0 + boundOffset
-                lowerBound = 0.0 - boundOffset
-            }
+                    // example:
+                    // if the prefetching period = 1, we load the current period, the next and the previous
+                    // when half of the next/previous period is passed, the listener is triggered to fetch new data
+                    val boundOffset = this.weekViewLoader.prefetchingPeriod - 0.5
 
-            if ((mEventRects == null || mRefreshEvents ||
-                            dayNumber == leftDaysWithGaps + 1 && mFetchedPeriod != this.weekViewLoader.toWeekViewPeriodIndex(day).toInt() &&
-                            (fetchIndex >= upperBound || fetchIndex <= lowerBound))) {
-                getMoreEvents(day)
-                mRefreshEvents = false
-            }
+                    upperBound = 1.0 + boundOffset
+                    lowerBound = 0.0 - boundOffset
+                }
 
-            // Draw background color for each day.
-            val start = if (startPixel < mHeaderColumnWidth) mHeaderColumnWidth else startPixel
-            if (mWidthPerDay + startPixel - start > 0) {
-                if (isShowDistinctPastFutureColor) {
-                    val isWeekend = day.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || day.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
-                    val pastPaint = if (isWeekend && isShowDistinctWeekendColor) mPastWeekendBackgroundPaint else mPastBackgroundPaint
-                    val futurePaint = if (isWeekend && isShowDistinctWeekendColor) mFutureWeekendBackgroundPaint else mFutureBackgroundPaint
-                    val startY = headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents + mCurrentOrigin.y
-                    when {
-                        isToday -> {
-                            val now = Calendar.getInstance()
-                            val beforeNow = (now.get(Calendar.HOUR_OF_DAY) - mMinTime + now.get(Calendar.MINUTE) / 60f) * hourHeight
-                            canvas.drawRect(start, startY, startPixel + mWidthPerDay, startY + beforeNow, pastPaint)
-                            canvas.drawRect(start, startY + beforeNow, startPixel + mWidthPerDay, height.toFloat(), futurePaint)
+                if ((mEventRects == null || mRefreshEvents ||
+                                dayNumber == leftDaysWithGaps + 1 && mFetchedPeriod != this.weekViewLoader.toWeekViewPeriodIndex(day).toInt() &&
+                                (fetchIndex >= upperBound || fetchIndex <= lowerBound))) {
+                    getMoreEvents(day)
+                    mRefreshEvents = false
+                }
+
+                // Draw background color for each day.
+                val start = if (startPixel < mHeaderColumnWidth) mHeaderColumnWidth else startPixel
+                if (mWidthPerDay + startPixel - start > 0) {
+                    if (isShowDistinctPastFutureColor) {
+                        val isWeekend = day.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || day.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
+                        val pastPaint = if (isWeekend && isShowDistinctWeekendColor) mPastWeekendBackgroundPaint else mPastBackgroundPaint
+                        val futurePaint = if (isWeekend && isShowDistinctWeekendColor) mFutureWeekendBackgroundPaint else mFutureBackgroundPaint
+                        val startY = headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents + mCurrentOrigin.y
+                        when {
+                            isToday -> {
+                                val now = Calendar.getInstance()
+                                val beforeNow = (now.get(Calendar.HOUR_OF_DAY) - mMinTime + now.get(Calendar.MINUTE) / 60f) * hourHeight
+                                canvas.drawRect(start, startY, startPixel + mWidthPerDay, startY + beforeNow, pastPaint)
+                                canvas.drawRect(start, startY + beforeNow, startPixel + mWidthPerDay, height.toFloat(), futurePaint)
+                            }
+                            day.before(today) -> canvas.drawRect(start, startY, startPixel + mWidthPerDay, height.toFloat(), pastPaint)
+                            else -> canvas.drawRect(start, startY, startPixel + mWidthPerDay, height.toFloat(), futurePaint)
                         }
-                        day.before(today) -> canvas.drawRect(start, startY, startPixel + mWidthPerDay, height.toFloat(), pastPaint)
-                        else -> canvas.drawRect(start, startY, startPixel + mWidthPerDay, height.toFloat(), futurePaint)
+                    } else {
+                        val cellBackgroundPaint = if (isToday) mTodayColumnBackgroundPaint else mDayBackgroundPaint
+                        if (cellBackgroundPaint.color != 0)
+                            canvas.drawRect(start, headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents, startPixel + mWidthPerDay, height.toFloat(), cellBackgroundPaint)
                     }
-                } else {
-                    val cellBackgroundPaint = if (isToday) mTodayColumnBackgroundPaint else mDayBackgroundPaint
-                    if (cellBackgroundPaint.color != 0)
-                        canvas.drawRect(start, headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents, startPixel + mWidthPerDay, height.toFloat(), cellBackgroundPaint)
                 }
-            }
 
-            // Prepare the separator lines for hours.
-            var i = 0
-            for (hourNumber in mMinTime until mMaxTime) {
-                val top = headerHeight + weekDaysHeaderRowTotalPadding + mCurrentOrigin.y + (hourHeight * (hourNumber - mMinTime)).toFloat() + mTimeTextHeight / 2
-                if (top > headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents - hourSeparatorHeight && top < height && startPixel + mWidthPerDay - start > 0) {
-                    hourLines[i * 4] = start
-                    hourLines[i * 4 + 1] = top
-                    hourLines[i * 4 + 2] = startPixel + mWidthPerDay + if (isUsingCheckersStyle) columnGap else 0
-                    hourLines[i * 4 + 3] = top
-                    i++
+                // Prepare the separator lines for hours.
+                var i = 0
+                for (hourNumber in mMinTime until mMaxTime) {
+                    val top = headerHeight + weekDaysHeaderRowTotalPadding + mCurrentOrigin.y + (hourHeight * (hourNumber - mMinTime)).toFloat() + mTimeTextHeight / 2
+                    if (top > headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents - hourSeparatorHeight && top < height && startPixel + mWidthPerDay - start > 0) {
+                        hourLines[i * 4] = start
+                        hourLines[i * 4 + 1] = top
+                        hourLines[i * 4 + 2] = startPixel + mWidthPerDay + if (isUsingCheckersStyle) columnGap else 0
+                        hourLines[i * 4 + 3] = top
+                        i++
+                    }
                 }
+                // Draw the lines for hours.
+                canvas.drawLines(hourLines, mHourSeparatorPaint)
+
+                // Draw line between days (before current one)
+                if (isUsingCheckersStyle) {
+                    val x = if (dayNumber == leftDaysWithGaps + 1) start else start - columnGap / 2
+                    canvas.drawLine(x, headerHeight, x, height.toFloat(), mHourSeparatorPaint)
+                }
+
+                // Draw the events.
+                drawEvents(day, startPixel, canvas)
+
+                // Draw the line at the current time.
+                if (isShowNowLine && isToday) {
+                    val startY = headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents + mCurrentOrigin.y
+                    val now = Calendar.getInstance()
+                    val beforeNow = (now.get(Calendar.HOUR_OF_DAY) - mMinTime + now.get(Calendar.MINUTE) / 60f) * hourHeight
+                    val top = startY + beforeNow
+                    canvas.drawLine(start, top, startPixel + mWidthPerDay, top, mNowLinePaint)
+                }
+
+                // In the next iteration, start from the next day.
+                startPixel += mWidthPerDay + columnGap
+                day.add(Calendar.DATE, 1)
             }
-            // Draw the lines for hours.
-            canvas.drawLines(hourLines, mHourSeparatorPaint)
-
-            // Draw line between days (before current one)
-            if (isUsingCheckersStyle) {
-                val x = if (dayNumber == leftDaysWithGaps + 1) start else start - columnGap / 2
-                canvas.drawLine(x, headerHeight, x, height.toFloat(), mHourSeparatorPaint)
-            }
-
-            // Draw the events.
-            drawEvents(day, startPixel, canvas)
-
-            // Draw the line at the current time.
-            if (isShowNowLine && isToday) {
-                val startY = headerHeight + weekDaysHeaderRowTotalPadding + mTimeTextHeight / 2 + spaceBelowAllDayEvents + mCurrentOrigin.y
-                val now = Calendar.getInstance()
-                val beforeNow = (now.get(Calendar.HOUR_OF_DAY) - mMinTime + now.get(Calendar.MINUTE) / 60f) * hourHeight
-                val top = startY + beforeNow
-                canvas.drawLine(start, top, startPixel + mWidthPerDay, top, mNowLinePaint)
-            }
-
-            // In the next iteration, start from the next day.
-            startPixel += mWidthPerDay + columnGap
         }
+
         canvas.restore()
 
         // Hide everything in the first cell (top left corner).
@@ -1584,7 +1557,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         //draw text on the left of the all-day events
         if (containsAllDayEvent && !TextUtils.isEmpty(allDaySideTitleText)) {
             canvas.save()
-            val headerTitleAndSubtitleTextHeight = headerWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) headerWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
             val weekDaysHeight = headerTitleAndSubtitleTextHeight + weekDaysHeaderRowTotalPadding
             val top = weekDaysHeight + spaceBetweenWeekDaysAndAllDayEvents + mTimeTextHeight / 2
             val bottom = top + allDayEventHeight
@@ -1712,17 +1684,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private fun drawAllDayEvents(date: Calendar, startFromPixel: Float, canvas: Canvas) {
         if (mEventRects != null && mEventRects!!.isNotEmpty()) {
             val headerTitleAndSubtitleTextHeight = headerWeekDayTitleTextHeight + (if (isSubtitleHeaderEnabled) headerWeekDaySubtitleTextHeight + spaceBetweenHeaderWeekDayTitleAndSubtitle else 0.0f)
-
-            for (i in mEventRects!!.indices) {
+            for (i in mEventRects!!.indices)
                 if (isSameDay(mEventRects!![i].event.startTime, date) && mEventRects!![i].event.isAllDay) {
-
                     // Calculate top.
                     val weekDaysHeight = headerTitleAndSubtitleTextHeight + weekDaysHeaderRowTotalPadding
                     val top = weekDaysHeight + spaceBetweenWeekDaysAndAllDayEvents + mTimeTextHeight / 2
-
                     // Calculate bottom.
                     val bottom = top + mEventRects!![i].bottom
-
                     // Calculate left and right.
                     var left = startFromPixel + mEventRects!![i].left * mWidthPerDay
                     if (left < startFromPixel)
@@ -1745,7 +1713,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     } else
                         mEventRects!![i].rectF = null
                 }
-            }
         }
     }
 
@@ -1852,9 +1819,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         override fun toString(): String {
             return "EventRect(left=$left, width=$width, top=$top, bottom=$bottom, rectF=$rectF, event=$event, originalEvent=$originalEvent)"
         }
-
     }
-
 
     /**
      * Gets more events of one/more month(s) if necessary. This method is called when the user is
@@ -1864,44 +1829,34 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param day The day where the user is currently is.
      */
     private fun getMoreEvents(day: Calendar) {
-
+        containsAllDayEventCache.clear()
+        Log.d("AppLog", "getMoreEvents")
         // Get more events if the month is changed.
         if (mEventRects == null)
             mEventRects = ArrayList()
-
-        if (mEvents == null)
-            mEvents = ArrayList()
-
         // If a refresh was requested then reset some variables.
         if (mRefreshEvents) {
             this.clearEvents()
             mFetchedPeriod = -1
         }
-
         val periodToFetch = this.weekViewLoader.toWeekViewPeriodIndex(day).toInt()
         if (!isInEditMode && (mFetchedPeriod < 0 || mFetchedPeriod != periodToFetch || mRefreshEvents)) {
             val newEvents = this.weekViewLoader.onLoad(periodToFetch)
-
             // Clear events.
             this.clearEvents()
             cacheAndSortEvents(newEvents)
             calculateHeaderHeight()
-
             mFetchedPeriod = periodToFetch
         }
-
         // Prepare to calculate positions of each events.
         val tempEvents = mEventRects
         mEventRects = ArrayList()
-
         // Iterate through each day with events to calculate the position of the events.
         while (tempEvents!!.size > 0) {
             val eventRects = ArrayList<EventRect>(tempEvents.size)
-
             // Get first event for a day.
             val eventRect1 = tempEvents.removeAt(0)
             eventRects.add(eventRect1)
-
             var i = 0
             while (i < tempEvents.size) {
                 // Collect all other events for same day.
@@ -1918,8 +1873,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun clearEvents() {
+        containsAllDayEventCache.clear()
         mEventRects!!.clear()
-        mEvents!!.clear()
+        mEvents.clear()
     }
 
     /**
@@ -1934,8 +1890,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         for (splitEvent in splitEvents) {
             mEventRects!!.add(EventRect(splitEvent, event, null))
         }
-
-        mEvents!!.add(event)
+        mEvents.add(event)
     }
 
     /**
@@ -1980,8 +1935,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         val collisionGroups = ArrayList<ArrayList<EventRect>>()
         for (eventRect in eventRects) {
             var isPlaced = false
-
-            outerLoop@ for (collisionGroup in collisionGroups) {
+            outerLoop@
+            for (collisionGroup in collisionGroups)
                 for (groupEvent in collisionGroup) {
                     if (isEventsCollide(groupEvent.event, eventRect.event)) { //&& groupEvent.event.isAllDay == eventRect.event.isAllDay) {
                         collisionGroup.add(eventRect)
@@ -1989,18 +1944,14 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                         break@outerLoop
                     }
                 }
-            }
-
             if (!isPlaced) {
                 val newGroup = ArrayList<EventRect>()
                 newGroup.add(eventRect)
                 collisionGroups.add(newGroup)
             }
         }
-
-        for (collisionGroup in collisionGroups) {
+        for (collisionGroup in collisionGroups)
             expandEventsToMaxWidth(collisionGroup)
-        }
     }
 
     /**
@@ -2300,6 +2251,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     //      Public methods.
     //
     /////////////////////////////////////////////////////////////////
+    fun getLastVisibleDay(): Calendar? {
+        if (firstVisibleDay == null)
+            return null
+        val result = firstVisibleDay!!.clone() as Calendar
+        result.add(Calendar.DATE, realNumberOfVisibleDays - 1)
+        return result
+    }
 
     /**
      * Show today on the week view.
@@ -2377,9 +2335,8 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @see .setMaxDate
      */
     fun dateIsValid(day: Calendar): Boolean {
-        if (minDate != null && day.before(minDate)) {
+        if (minDate != null && day.before(minDate))
             return false
-        }
         return !(maxDate != null && day.after(maxDate))
     }
 
