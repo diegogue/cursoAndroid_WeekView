@@ -13,7 +13,6 @@ import android.text.*
 import android.text.format.DateFormat
 import android.text.style.StyleSpan
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.*
 import android.widget.OverScroller
@@ -973,6 +972,9 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     private val timeChangedBroadcastReceiver: TimeChangedBroadcastReceiver
     private var today: Calendar = WeekViewUtil.today()
     private val containsAllDayEventCache = HashMap<Pair<SimpleDate, Int>, Boolean>()
+    private val weekDayTitleFormatterCache = HashMap<SimpleDate, String>()
+    private val weekDaySubtitleFormatterCache = HashMap<SimpleDate, String>()
+    private val timeFormatterCache = HashMap<Pair<Int, Int>, String>()
 
     //endregion fields and properties
 
@@ -1217,7 +1219,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
         mTimeTextWidth = 0f
         for (i in 0 until numberOfPeriods) {
             // Measure time string and get max width.
-            val time = dateTimeInterpreter.interpretTime(i, i % 2 * 30)
+            val time = getFormattedTime(i, i % 2 * 30)
             mTimeTextWidth = Math.max(mTimeTextWidth, mTimeTextPaint.measureText(time))
         }
     }
@@ -1275,17 +1277,13 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             val minutes: Int
             val hour: Int
             val timesPerHour = 60.0f / timeColumnResolution
-
             timeSpacing = hourHeight / timesPerHour
             hour = mMinTime + i / timesPerHour.toInt()
             minutes = i % timesPerHour.toInt() * (60 / timesPerHour.toInt())
-
-
             // Calculate the top of the rectangle where the time text will go
             val top = headerHeight + weekDaysHeaderRowTotalPadding + mCurrentOrigin.y + timeSpacing * i + spaceBelowAllDayEvents
-
             // Get the time to be displayed, as a String.
-            val time = dateTimeInterpreter.interpretTime(hour, minutes)
+            val time = getFormattedTime(hour, minutes)
             // Draw the text if its y position is not outside of the visible area. The pivot point of the text is the point at the bottom-right corner.
             if (top < height)
                 canvas.drawText(time, mTimeTextWidth + headerColumnPadding, top + mTimeTextHeight, mTimeTextPaint)
@@ -1538,12 +1536,12 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
                     continue
                 }
                 // Draw the day labels title
-                val dayLabel = dateTimeInterpreter.interpretDate(day)
+                val dayLabel = getFormattedWeekDayTitle(day)
                 canvas.drawText(dayLabel, startPixel + mWidthPerDay / 2, headerWeekDayTitleTextHeight + weekDayHeaderRowPaddingTop, if (isToday) mHeaderWeekDayTitleTodayTextPaint else mHeaderWeekDayTitleTextPaint)
 
                 //draw day subtitle
                 if (isSubtitleHeaderEnabled) {
-                    val subtitleText = weekDaySubtitleInterpreter!!.interpretDate(day)
+                    val subtitleText = getFormattedWeekDaySubtitle(day)
                     canvas.drawText(subtitleText, startPixel + mWidthPerDay / 2, headerTitleAndSubtitleTextHeight + weekDayHeaderRowPaddingTop,
                             if (isToday) mHeaderWeekDaySubtitleTodayTextPaint else mHeaderWeekDaySubtitleTextPaint)
                 }
@@ -1564,6 +1562,36 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             canvas.drawText(allDaySideTitleText, mHeaderColumnWidth / 2, (top + bottom) / 2, allDaySideTitleTextPaint)
             canvas.restore()
         }
+    }
+
+    private fun getFormattedTime(hour: Int, minutes: Int): String {
+        val cacheKey = Pair(hour, minutes)
+        val cachedResult = timeFormatterCache[cacheKey]
+        if (cachedResult != null)
+            return cachedResult
+        val result = dateTimeInterpreter.interpretTime(hour, minutes)
+        timeFormatterCache[cacheKey] = result
+        return result
+    }
+
+    private fun getFormattedWeekDayTitle(cal: Calendar): String {
+        val cacheKey = SimpleDate(cal)
+        val cachedResult = weekDayTitleFormatterCache[cacheKey]
+        if (cachedResult != null)
+            return cachedResult
+        val result = dateTimeInterpreter.interpretDate(cal)
+        weekDayTitleFormatterCache[cacheKey] = result
+        return result
+    }
+
+    private fun getFormattedWeekDaySubtitle(cal: Calendar): String {
+        val cacheKey = SimpleDate(cal)
+        val cachedResult = weekDaySubtitleFormatterCache[cacheKey]
+        if (cachedResult != null)
+            return cachedResult
+        val result = weekDaySubtitleInterpreter!!.interpretDate(cal)
+        weekDaySubtitleFormatterCache[cacheKey] = result
+        return result
     }
 
     /**
@@ -1829,8 +1857,7 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
      * @param day The day where the user is currently is.
      */
     private fun getMoreEvents(day: Calendar) {
-        containsAllDayEventCache.clear()
-        Log.d("AppLog", "getMoreEvents")
+        clearOptimizationsCaches()
         // Get more events if the month is changed.
         if (mEventRects == null)
             mEventRects = ArrayList()
@@ -1873,9 +1900,16 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     private fun clearEvents() {
-        containsAllDayEventCache.clear()
+        clearOptimizationsCaches()
         mEventRects!!.clear()
         mEvents.clear()
+    }
+
+    private fun clearOptimizationsCaches() {
+        containsAllDayEventCache.clear()
+        timeFormatterCache.clear()
+        weekDayTitleFormatterCache.clear()
+        weekDaySubtitleFormatterCache.clear()
     }
 
     /**

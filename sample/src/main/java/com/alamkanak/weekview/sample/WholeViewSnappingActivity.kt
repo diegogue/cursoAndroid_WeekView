@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_base.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 /**
  * Activity to demonstrate snapping of the whole view, for example week-by-week.
  */
@@ -40,7 +41,9 @@ class WholeViewSnappingActivity : BasicActivity() {
         weekView.scrollListener = object : WeekView.ScrollListener {
             val monthFormatter = SimpleDateFormat("MMM", Locale.getDefault())
             override fun onFirstVisibleDayChanged(newFirstVisibleDay: Calendar, oldFirstVisibleDay: Calendar?) {
-                weekView.sideTitleText = monthFormatter.format(newFirstVisibleDay.time)
+                //we show just the month here, so no need to update it every time
+                if (oldFirstVisibleDay == null || oldFirstVisibleDay.get(Calendar.MONTH) != newFirstVisibleDay.get(Calendar.MONTH))
+                    weekView.sideTitleText = monthFormatter.format(newFirstVisibleDay.time)
             }
         }
         draggable_view.visibility = View.GONE
