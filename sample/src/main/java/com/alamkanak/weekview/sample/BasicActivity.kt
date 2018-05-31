@@ -93,7 +93,6 @@ open class BasicActivity : BaseActivity() {
         startTime.add(Calendar.DATE, 1)
         endTime = startTime.clone() as Calendar
         endTime.add(Calendar.HOUR_OF_DAY, 3)
-        endTime.set(Calendar.MONTH, newMonth - 1)
         event = WeekViewEvent(getUniqueId(), getEventTitle(startTime, endTime), startTime, endTime)
         event.color = ResourcesCompat.getColor(resources, R.color.event_color_03, null)
         events.add(event)
