@@ -44,18 +44,10 @@ object WeekViewUtil {
         return today
     }
 
-    /**
-     * Checks if two dates are on the same day and hour.
-     *
-     * @param dateOne The first day.
-     * @param dateTwo The second day.
-     * @return Whether the dates are on the same day and hour.
-     */
     @JvmStatic
-    fun isSameDayAndHour(dateOne: Calendar, dateTwo: Calendar?): Boolean {
-        return if (dateTwo != null) {
-            isSameDay(dateOne, dateTwo) && dateOne.get(Calendar.HOUR_OF_DAY) == dateTwo.get(Calendar.HOUR_OF_DAY)
-        } else false
+    fun isSameDayAndHourAndMinute(dateOne: Calendar, dateTwo: Calendar): Boolean {
+        return isSameDay(dateOne, dateTwo) && dateOne.get(Calendar.HOUR_OF_DAY) == dateTwo.get(Calendar.HOUR_OF_DAY)
+                && dateOne.get(Calendar.MINUTE) == dateTwo.get(Calendar.MINUTE)
     }
 
     /**
