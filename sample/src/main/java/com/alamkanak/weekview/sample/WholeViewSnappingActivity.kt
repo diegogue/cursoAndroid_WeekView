@@ -20,6 +20,8 @@ import java.util.*
  * Activity to demonstrate snapping of the whole view, for example week-by-week.
  */
 class WholeViewSnappingActivity : BasicActivity() {
+    val locale = Locale.getDefault()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,18 +41,28 @@ class WholeViewSnappingActivity : BasicActivity() {
         cal.set(Calendar.DAY_OF_WEEK, cal.firstDayOfWeek)
         weekView.goToDate(cal)
         weekView.scrollListener = object : WeekView.ScrollListener {
-            val monthFormatter = SimpleDateFormat("MMM", Locale.getDefault())
+            val monthFormatter = SimpleDateFormat("MMM", locale)
+            val yearFormatter = SimpleDateFormat("yyyy", locale)
+
             override fun onFirstVisibleDayChanged(newFirstVisibleDay: Calendar, oldFirstVisibleDay: Calendar?) {
                 //we show just the month here, so no need to update it every time
-                if (oldFirstVisibleDay == null || oldFirstVisibleDay.get(Calendar.MONTH) != newFirstVisibleDay.get(Calendar.MONTH))
-                    weekView.sideTitleText = monthFormatter.format(newFirstVisibleDay.time)
+                if (oldFirstVisibleDay == null || oldFirstVisibleDay.get(Calendar.MONTH) != newFirstVisibleDay.get(Calendar.MONTH)) {
+                    val date = newFirstVisibleDay.time
+                    if (cal.get(Calendar.YEAR) == newFirstVisibleDay.get(Calendar.YEAR)) {
+                        weekView.sideSubtitleText = ""
+                        weekView.sideTitleText = monthFormatter.format(date)
+                    } else {
+                        weekView.sideTitleText = monthFormatter.format(date)
+                        weekView.sideSubtitleText = yearFormatter.format(date)
+                    }
+                }
             }
         }
         draggable_view.visibility = View.GONE
         weekView.weekDaySubtitleInterpreter = object : WeekDaySubtitleInterpreter {
-            val dateFormatTitle = SimpleDateFormat("d", Locale.getDefault())
+            val dateFormatTitle = SimpleDateFormat("d", locale)
 
-            override fun interpretDate(date: Calendar): String = dateFormatTitle.format(date.time)
+            override fun getFormattedWeekDaySubtitle(date: Calendar): String = dateFormatTitle.format(date.time)
         }
         weekView.eventClickListener = object : WeekView.EventClickListener {
             override fun onEventClick(event: WeekViewEvent, eventRect: RectF) {
@@ -65,16 +77,16 @@ class WholeViewSnappingActivity : BasicActivity() {
             set(Calendar.MILLISECOND, 0)
         }
         val timeFormat = DateFormat.getTimeFormat(this)
-                ?: SimpleDateFormat("HH:mm", Locale.getDefault())
-        val dateFormatTitle = SimpleDateFormat("EEE", Locale.getDefault())
+                ?: SimpleDateFormat("HH:mm", locale)
+        val dateFormatTitle = SimpleDateFormat("EEE", locale)
         weekView.dateTimeInterpreter = object : DateTimeInterpreter {
-            override fun interpretTime(hour: Int, minutes: Int): String {
+            override fun getFormattedTimeOfDay(hour: Int, minutes: Int): String {
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
                 calendar.set(Calendar.MINUTE, minutes)
                 return timeFormat.format(calendar.time)
             }
 
-            override fun interpretDate(date: Calendar): String = dateFormatTitle.format(date.time)
+            override fun getFormattedWeekDayTitle(date: Calendar): String = dateFormatTitle.format(date.time)
         }
     }
 

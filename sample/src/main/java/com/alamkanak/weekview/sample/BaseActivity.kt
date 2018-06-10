@@ -185,13 +185,13 @@ abstract class BaseActivity : AppCompatActivity(), WeekView.EventClickListener, 
         }
         val normalDateFormat = WeekViewUtil.getWeekdayWithNumericDayAndMonthFormat(this@BaseActivity, false)
         weekView.dateTimeInterpreter = object : DateTimeInterpreter {
-            override fun interpretTime(hour: Int, minutes: Int): String {
+            override fun getFormattedTimeOfDay(hour: Int, minutes: Int): String {
                 calendar.set(Calendar.HOUR_OF_DAY, hour)
                 calendar.set(Calendar.MINUTE, minutes)
                 return timeFormat.format(calendar.time)
             }
 
-            override fun interpretDate(date: Calendar): String {
+            override fun getFormattedWeekDayTitle(date: Calendar): String {
                 return if (shortDate) shortDateFormat.format(date.time) else normalDateFormat.format(date.time)
             }
         }

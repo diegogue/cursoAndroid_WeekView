@@ -3,5 +3,5 @@ package com.alamkanak.weekview
 import java.util.*
 
 interface WeekDaySubtitleInterpreter {
-    fun interpretDate(date: Calendar): String
+    fun getFormattedWeekDaySubtitle(date: Calendar): String
 }
