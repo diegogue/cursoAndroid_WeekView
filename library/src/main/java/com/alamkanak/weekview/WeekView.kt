@@ -1513,7 +1513,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             canvas.drawRect(0f, 0f, mHeaderColumnWidth, headerTitleAndSubtitleTextHeight + weekDaysHeaderRowTotalPadding, mHeaderBackgroundPaint)
         else
             canvas.drawRect(canvas.clipBounds, mHeaderBackgroundPaint)
-//            canvas.drawRect(0f, 0f, mTimeTextWidth + headerColumnPadding * 2, mHeaderHeight + weekDaysHeaderRowPadding * 2, mHeaderBackgroundPaint)
 
         // draw text on the left of the week days
         when {
@@ -2413,12 +2412,6 @@ class WeekView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
     }
 
     interface EventLongPressListener {
-        /**
-         * Similar to [com.alamkanak.weekview.WeekView.EventClickListener] but with a long press.
-         *
-         * @param event:     event clicked.
-         * @param eventRect: view containing the clicked event.
-         */
         fun onEventLongPress(event: WeekViewEvent, eventRect: RectF)
     }
 
