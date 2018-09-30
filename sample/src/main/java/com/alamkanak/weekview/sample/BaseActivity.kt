@@ -3,12 +3,12 @@ package com.alamkanak.weekview.sample
 import android.content.ClipData
 import android.graphics.RectF
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.alamkanak.weekview.*
 import kotlinx.android.synthetic.main.activity_base.*
 import java.text.DateFormat

@@ -1,6 +1,6 @@
 package com.alamkanak.weekview
 
-import android.support.annotation.IntRange
+import androidx.annotation.IntRange
 import java.util.*
 
 /**

@@ -1,7 +1,7 @@
 package com.alamkanak.weekview.sample
 
 import android.os.Bundle
-import android.support.v4.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat
 import com.alamkanak.weekview.WeekViewEvent
 import kotlinx.android.synthetic.main.activity_base.*
 import java.util.*
@@ -16,7 +16,6 @@ open class BasicActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         weekView.typeface = ResourcesCompat.getFont(this, R.font.lato)
     }
 

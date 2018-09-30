@@ -4,11 +4,11 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.support.annotation.ColorInt
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.animation.FastOutLinearInInterpolator
-import android.support.v7.content.res.AppCompatResources
+import androidx.annotation.ColorInt
+import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.ViewCompat
+import androidx.interpolator.view.animation.FastOutLinearInInterpolator
+import androidx.appcompat.content.res.AppCompatResources
 import android.text.*
 import android.text.format.DateFormat
 import android.text.style.StyleSpan
